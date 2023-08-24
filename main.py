@@ -8,13 +8,14 @@ from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
 from tasks import docker_task, task_list_tasks
+from datetime import datetime
 
 class TaskRegistry:
     def __init__(self):
-        self.tasks = {'a': {'status': 'OK', 'result': 'a'}}
+        self.tasks = {'a': {'status': 'SUCCESS', 'result': 'a', 'start_time': datetime.now()}}
 
     def add_task(self, task):
-        self.tasks[task.id] = {'status': task.status, 'result': task.result}
+        self.tasks[task.id] = {'status': task.status, 'result': task.result, 'start_time': datetime.now()}
 
     def get_tasks(self):
         return self.tasks
@@ -22,7 +23,7 @@ class TaskRegistry:
     def get_task(self, task_id, update=False):
         if update:
             task_result = AsyncResult(task_id)
-            self.tasks[task_id] = {'status': task_result.status, 'result': task_result.result}
+            self.tasks[task_id].update({'status': task_result.status, 'result': task_result.result})
         return self.tasks[task_id]
 
 

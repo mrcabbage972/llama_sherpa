@@ -1,6 +1,12 @@
 {% extends "_base.html" %}
 
 {% block content %}
+<!--<script>
+        function autoRefresh() {
+            window.location = window.location.href;
+        }
+        setInterval('autoRefresh()', 2000);
+    </script> -->
 
       <div class="starter-template">
             Tasks Submitted
@@ -8,10 +14,12 @@
             <table border="1">
                   <th>Task ID</th>
     <th>Status</th>
+                <th>Start Time</th>
             {% for key, value in result.items() %}
               <tr>
                   <td><a href="/task_info/{{ key }}">{{ key }}</a></td>
                   <td>{{ value["status"] }}</td>
+                  <td>{{ value["start_time"].strftime('%Y-%m-%d %H:%M:%S') }}</td>
               </tr>
         {% endfor %}
 </table>
