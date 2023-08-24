@@ -11,13 +11,16 @@ from tasks import docker_task, task_list_tasks
 
 class TaskRegistry:
     def __init__(self):
-        self.tasks = ['dummy']
+        self.tasks = {1: {'status': 'OK', 'result': 'a'}}
 
     def add_task(self, task):
-        self.tasks.append(task)
+        self.tasks[task.id] = {'status': task.status, 'result': task.result}
 
     def get_tasks(self):
         return self.tasks
+
+    def get_task(self, task_id):
+        return self.tasks[task_id]
 
 
 
@@ -30,8 +33,13 @@ app.state.task_registry = TaskRegistry()
 
 @app.get("/")
 def home(request: Request):
-    return templates.TemplateResponse("home.html", context={"request": request, "result": app.state.task_registry.get_tasks()})
+    return templates.TemplateResponse("home.html", context={"request": request, "result": app.state.task_registry.get_tasks().keys()})
 
+
+@app.get('/task_info/{task_id}')
+def task_info(request: Request, task_id: int):
+    task = app.state.task_registry.get_task(task_id)
+    return templates.TemplateResponse("task_info.html", context={"request": request, "result": task})
 
 @app.get("/submit")
 def submit_job(request: Request):
@@ -41,9 +49,7 @@ def submit_job(request: Request):
 
 @app.post("/submit")
 def submit_job(request: Request, image: Annotated[str, Form()], command: Annotated[str, Form()]):
-    result = 'a'
-    task_registry.add_task(result)
-    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": result})
+    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": None})
 
 
 class SubmitDockerJob(BaseModel):
@@ -51,12 +57,6 @@ class SubmitDockerJob(BaseModel):
     command: str = 'echo "hello world"'
     gpus: int = 0
     dry_run: bool = False
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
 
 @app.post("/tasks", status_code=201)
 def submit_docker_job(payload: SubmitDockerJob):
