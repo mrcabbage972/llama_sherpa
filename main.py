@@ -9,13 +9,28 @@ from starlette.templating import Jinja2Templates
 
 from tasks import docker_task, task_list_tasks
 
+class TaskRegistry:
+    def __init__(self):
+        self.tasks = ['dummy']
+
+    def add_task(self, task):
+        self.tasks.append(task)
+
+    def get_tasks(self):
+        return self.tasks
+
+
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+app.state.task_registry = TaskRegistry()
+
+
 @app.get("/")
 def home(request: Request):
-    return templates.TemplateResponse("home.html", context={"request": request})
+    return templates.TemplateResponse("home.html", context={"request": request, "result": app.state.task_registry.get_tasks()})
 
 
 @app.get("/submit")
@@ -26,7 +41,8 @@ def submit_job(request: Request):
 
 @app.post("/submit")
 def submit_job(request: Request, image: Annotated[str, Form()], command: Annotated[str, Form()]):
-    result = {'a': 'b', 'c': 'd'}
+    result = 'a'
+    task_registry.add_task(result)
     return templates.TemplateResponse("submit_job.html", context={"request": request, "result": result})
 
 
