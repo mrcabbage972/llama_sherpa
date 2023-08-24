@@ -48,8 +48,10 @@ def submit_job(request: Request):
 
 
 @app.post("/submit")
-def submit_job(request: Request, image: Annotated[str, Form()], command: Annotated[str, Form()]):
-    task = docker_task.delay(image, command, 0, True)
+def submit_job(request: Request, image: Annotated[str, Form()],
+               command: Annotated[str, Form()],
+               dry_run: Annotated[bool, Form()] = False):
+    task = docker_task.delay(image, command, 0, dry_run)
     app.state.task_registry.add_task(task)
     return templates.TemplateResponse("submit_job.html", context={"request": request, "result": task.id})
 
