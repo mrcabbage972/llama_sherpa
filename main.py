@@ -11,7 +11,7 @@ from tasks import docker_task, task_list_tasks
 
 class TaskRegistry:
     def __init__(self):
-        self.tasks = {1: {'status': 'OK', 'result': 'a'}}
+        self.tasks = {'a': {'status': 'OK', 'result': 'a'}}
 
     def add_task(self, task):
         self.tasks[task.id] = {'status': task.status, 'result': task.result}
@@ -19,7 +19,10 @@ class TaskRegistry:
     def get_tasks(self):
         return self.tasks
 
-    def get_task(self, task_id):
+    def get_task(self, task_id, update=False):
+        if update:
+            task_result = AsyncResult(task_id)
+            self.tasks[task_id] = {'status': task_result.status, 'result': task_result.result}
         return self.tasks[task_id]
 
 
@@ -37,8 +40,8 @@ def home(request: Request):
 
 
 @app.get('/task_info/{task_id}')
-def task_info(request: Request, task_id: int):
-    task = app.state.task_registry.get_task(task_id)
+def task_info(request: Request, task_id: str):
+    task = app.state.task_registry.get_task(task_id, update=True)
     return templates.TemplateResponse("task_info.html", context={"request": request, "result": task})
 
 @app.get("/submit")

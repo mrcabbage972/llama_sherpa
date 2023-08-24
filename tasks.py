@@ -30,12 +30,13 @@ def docker_task(image, command, gpus, dry_run):
         else:
             device_requests = None
 
-        client.containers.run(image,
+        result = client.containers.run(image,
                               command,
                               device_requests=device_requests)
-        return True
+        return result.decode("utf-8")
+
     else:
-        return True
+        return "dry_run"
 
 @app.task()
 def task_list_tasks():
