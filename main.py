@@ -13,18 +13,21 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-
-
 @app.get("/")
 def home(request: Request):
-    return templates.TemplateResponse("home.html", context={"request": request, "result": None})
+    return templates.TemplateResponse("home.html", context={"request": request})
+
+
+@app.get("/submit")
+def submit_job(request: Request):
+    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": None})
 
 
 
-@app.post("/")
-def home(request: Request, image: Annotated[str, Form()], command: Annotated[str, Form()]):
-    result = image + command
-    return templates.TemplateResponse("home.html", context={"request": request, "result": result})
+@app.post("/submit")
+def submit_job(request: Request, image: Annotated[str, Form()], command: Annotated[str, Form()]):
+    result = {'a': 'b', 'c': 'd'}
+    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": result})
 
 
 class SubmitDockerJob(BaseModel):
