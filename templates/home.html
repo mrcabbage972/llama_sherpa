@@ -5,8 +5,16 @@
       <div class="starter-template">
             Tasks Submitted
             <!-- list the submitted tasks -->
-            {% for key in result %}
-            <p>Task ID: {{ key }}</p>
-            {% endfor %}
+            <table border="1">
+                  <th>Task ID</th>
+    <th>Status</th>
+            {% for key, value in result.items() %}
+              <tr>
+                  <td><a href="/task_info/{{ key }}">{{ key }}</a></td>
+                  <td>{{ value["status"] }}</td>
+              </tr>
+        {% endfor %}
+</table>
+
       </div>
 {% endblock %}

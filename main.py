@@ -33,7 +33,7 @@ app.state.task_registry = TaskRegistry()
 
 @app.get("/")
 def home(request: Request):
-    return templates.TemplateResponse("home.html", context={"request": request, "result": app.state.task_registry.get_tasks().keys()})
+    return templates.TemplateResponse("home.html", context={"request": request, "result": app.state.task_registry.get_tasks()})
 
 
 @app.get('/task_info/{task_id}')
@@ -49,7 +49,9 @@ def submit_job(request: Request):
 
 @app.post("/submit")
 def submit_job(request: Request, image: Annotated[str, Form()], command: Annotated[str, Form()]):
-    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": None})
+    task = docker_task.delay(image, command, 0, True)
+    app.state.task_registry.add_task(task)
+    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": task.id})
 
 
 class SubmitDockerJob(BaseModel):
