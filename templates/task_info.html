@@ -3,7 +3,14 @@
 {% block content %}
 
       <div class="starter-template">
-            Task Info
-            {{ result }}
+            Task Info<br>
+            <table border="1">
+            {% for key, value in result.items() %}
+              <tr>
+                  <td>{{ key }}</td>
+                  <td>{{ value }}</td>
+              </tr>
+            {% endfor %}
+</table>
       </div>
 {% endblock %}
