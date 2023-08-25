@@ -9,17 +9,17 @@
           <h4 class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-muted">Login</span>
       </h4>
-              <form class="bg-white rounded shadow-5-strong p-5">
+              <form class="bg-white rounded shadow-5-strong p-5"  method="post">
                 <!-- Email input -->
                 <div class="form-outline mb-4">
-                  <input type="email" id="form1Example1" class="form-control" />
-                  <label class="form-label" for="form1Example1">Email address</label>
+                  <input type="text" id="username" name="username" class="form-control" />
+                  <label class="form-label" for="username">Username</label>
                 </div>
 
                 <!-- Password input -->
                 <div class="form-outline mb-4">
-                  <input type="password" id="form1Example2" class="form-control" />
-                  <label class="form-label" for="form1Example2">Password</label>
+                  <input type="password" id="password"  name="password" class="form-control" />
+                  <label class="form-label" for="password">Password</label>
                 </div>
 
                 <!-- 2 column grid layout for inline styling -->
@@ -41,7 +41,8 @@
                 </div>-->
 
                 <!-- Submit button -->
-                <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+                  <input type="submit" class="btn btn-primary btn-lg btn-block" value="Submit">
+
               </form>
             </div>
 

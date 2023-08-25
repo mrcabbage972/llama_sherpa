@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
 from pydantic import BaseModel
 from starlette import status
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
@@ -124,6 +124,7 @@ def list_tasks():
 @app.get('/login')
 def login(request: Request):
     return templates.TemplateResponse("login.html", context={"request": request})
+
 
 @app.post('/login')
 def login(data: OAuth2PasswordRequestForm = Depends()):
