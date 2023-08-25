@@ -24,7 +24,8 @@ class TaskRegistry:
     def get_task(self, task_id, update=False):
         if update:
             task_result = AsyncResult(task_id)
-            self.tasks[task_id].update({'status': task_result.status, 'result': task_result.result})
+            self.tasks[task_id].update({'status': task_result.status})
+            self.tasks[task_id].update(task_result.result)
         return self.tasks[task_id]
 
 
