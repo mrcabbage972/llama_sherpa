@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Union
 
 import fastapi
 import uvicorn
@@ -9,27 +9,39 @@ from starlette import status
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
-from tasks import docker_task, task_list_tasks
+from tasks import docker_task, task_list_tasks, TaskResult
 from datetime import datetime
+
+
+class TaskData(BaseModel):
+    status: str = 'SUCCESS'
+    start_time: datetime = datetime.now()
+    task_result: Union[TaskResult, None] = None
 
 class TaskRegistry:
     def __init__(self):
         # TODO: refactor with pydantic
-        self.tasks = {'a': {'status': 'SUCCESS', 'start_time': datetime.now(), 'end_time': datetime.now()}}
+        self.tasks = {'a': TaskData()}
 
     def add_task(self, task):
-        self.tasks[task.id] = {'status': task.status, 'start_time': datetime.now(), 'end_time': None}
+        self.tasks[task.id] = TaskData(status=task.status)
 
     def get_tasks(self):
         return self.tasks
 
     def get_task(self, task_id, update=False):
+        # TODO: refactor, this is ugly
         if update:
             task_result = AsyncResult(task_id)
-            self.tasks[task_id].update({'status': task_result.status})
-            self.tasks[task_id].update(task_result.result)
-        return self.tasks[task_id]
+            self.tasks[task_id].status = task_result.status
+            self.tasks[task_id].task_result = task_result.result #TaskResult.model_validate(task_result.result)
 
+        result_dict = self.tasks[task_id].dict()
+        result_dict.update({'task_id': task_id})
+        if self.tasks[task_id].task_result is not None:
+            result_dict.update(self.tasks[task_id].task_result)
+        del result_dict['task_result']
+        return result_dict
 
 
 app = FastAPI()
@@ -51,7 +63,7 @@ def task_info(request: Request, task_id: str):
 
 @app.get("/submit")
 def submit_job(request: Request):
-    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": None})
+    return templates.TemplateResponse("submit_job.html", context={"request": request})
 
 
 

@@ -1,3 +1,5 @@
+from typing import Union
+
 import docker
 from celery.app import Celery
 from datetime import datetime
@@ -5,10 +7,17 @@ import os
 
 from celery.bin.control import inspect
 from docker.errors import ContainerError, APIError
+from pydantic import BaseModel
 
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 app = Celery(__name__, broker=redis_url, backend=redis_url)
+
+
+class TaskResult(BaseModel):
+    end_time: Union[datetime, None] = datetime.now()
+    stdout: Union[str, None] = None
+    success: Union[str, None] = None
 
 
 @app.task
@@ -37,13 +46,12 @@ def docker_task(image, command, gpus, dry_run, env):
                                     environment=env,
                                   device_requests=device_requests)
         except ContainerError as e:
-            return {'stdout': str(e), 'success': False, 'end_time': datetime.now()}
+            return TaskResult(stdout=str(e), success=False)
         except APIError as e:
-            return {'stdout': str(e), 'success': False, 'end_time': datetime.now()}
-        return {'stdout': result.decode("utf-8"), 'success': True, 'end_time': datetime.now()}
-
+            return TaskResult(stdout=str(e), success=False)
+        return TaskResult(stdout=result.decode("utf-8"), success=True)
     else:
-        return {'stdout': "", 'success': True, 'end_time': datetime.now()}
+        return TaskResult(stdout="", success=True)
 
 @app.task()
 def task_list_tasks():
