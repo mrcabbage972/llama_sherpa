@@ -121,6 +121,10 @@ def list_tasks():
     return task_list_tasks.run()
 
 
+@app.get('/login')
+def login(request: Request):
+    return templates.TemplateResponse("login.html", context={"request": request})
+
 @app.post('/login')
 def login(data: OAuth2PasswordRequestForm = Depends()):
     username = data.username
