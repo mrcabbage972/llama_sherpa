@@ -12,10 +12,11 @@ from datetime import datetime
 
 class TaskRegistry:
     def __init__(self):
-        self.tasks = {'a': {'status': 'SUCCESS', 'result': 'a', 'start_time': datetime.now()}}
+        # TODO: refactor with pydantic
+        self.tasks = {'a': {'status': 'SUCCESS', 'result': 'a', 'start_time': datetime.now(), 'end_time': datetime.now()}}
 
     def add_task(self, task):
-        self.tasks[task.id] = {'status': task.status, 'result': task.result, 'start_time': datetime.now()}
+        self.tasks[task.id] = {'status': task.status, 'result': task.result, 'start_time': datetime.now(), 'end_time': None}
 
     def get_tasks(self):
         return self.tasks
@@ -78,8 +79,9 @@ def get_status(task_id):
     task_result = AsyncResult(task_id)
     result = {
         "task_id": task_id,
-        "task_status": task_result.status,
-        "task_result": task_result.result
+        "task_status": task_result.status and task_result.result['success'],
+        "task_result": task_result.result['stdout'],
+        "task_end_time": task_result.result['end_time']
     }
     return result
 

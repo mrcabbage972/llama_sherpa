@@ -4,6 +4,7 @@ from datetime import datetime
 import os
 
 from celery.bin.control import inspect
+from docker.errors import ContainerError, APIError
 
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
 
@@ -30,14 +31,19 @@ def docker_task(image, command, gpus, dry_run, env):
         else:
             device_requests = None
 
-        result = client.containers.run(image,
-                              command,
-                                environment=env,
-                              device_requests=device_requests)
-        return result.decode("utf-8")
+        try:
+            result = client.containers.run(image,
+                                  command,
+                                    environment=env,
+                                  device_requests=device_requests)
+        except ContainerError as e:
+            return {'stdout': str(e), 'success': False, 'end_time': datetime.now()}
+        except APIError as e:
+            return {'stdout': str(e), 'success': False, 'end_time': datetime.now()}
+        return {'stdout': result.decode("utf-8"), 'success': True, 'end_time': datetime.now()}
 
     else:
-        return "dry_run"
+        return {'stdout': "", 'success': True, 'end_time': datetime.now()}
 
 @app.task()
 def task_list_tasks():
