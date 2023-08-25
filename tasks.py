@@ -20,7 +20,7 @@ def dummy_task():
 
 
 @app.task()
-def docker_task(image, command, gpus, dry_run):
+def docker_task(image, command, gpus, dry_run, env):
     if not dry_run:
         client = docker.from_env()
 
@@ -32,6 +32,7 @@ def docker_task(image, command, gpus, dry_run):
 
         result = client.containers.run(image,
                               command,
+                                environment=env,
                               device_requests=device_requests)
         return result.decode("utf-8")
 
