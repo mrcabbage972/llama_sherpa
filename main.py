@@ -1,9 +1,11 @@
 from typing import Annotated
 
+import fastapi
 import uvicorn
 from celery.result import AsyncResult
 from fastapi import FastAPI, Request, Form
 from pydantic import BaseModel
+from starlette import status
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
@@ -13,10 +15,10 @@ from datetime import datetime
 class TaskRegistry:
     def __init__(self):
         # TODO: refactor with pydantic
-        self.tasks = {'a': {'status': 'SUCCESS', 'result': 'a', 'start_time': datetime.now(), 'end_time': datetime.now()}}
+        self.tasks = {'a': {'status': 'SUCCESS', 'start_time': datetime.now(), 'end_time': datetime.now()}}
 
     def add_task(self, task):
-        self.tasks[task.id] = {'status': task.status, 'result': task.result, 'start_time': datetime.now(), 'end_time': None}
+        self.tasks[task.id] = {'status': task.status, 'start_time': datetime.now(), 'end_time': None}
 
     def get_tasks(self):
         return self.tasks
@@ -60,7 +62,10 @@ def submit_job(request: Request, image: Annotated[str, Form()],
                dry_run: Annotated[bool, Form()] = False):
     task = docker_task.delay(image, command, 0, dry_run, env.split(';'))
     app.state.task_registry.add_task(task)
-    return templates.TemplateResponse("submit_job.html", context={"request": request, "result": task.id})
+    return fastapi.responses.RedirectResponse(
+        '/',
+        status_code=status.HTTP_302_FOUND)
+    #return templates.TemplateResponse("submit_job.html", context={"request": request, "result": task.id})
 
 
 class SubmitDockerJob(BaseModel):
