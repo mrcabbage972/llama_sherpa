@@ -3,14 +3,20 @@ from typing import Annotated, Union
 import fastapi
 import uvicorn
 from celery.result import AsyncResult
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Depends, HTTPException
+from fastapi.openapi.models import Response
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_login.exceptions import InvalidCredentialsException
 from pydantic import BaseModel
 from starlette import status
+from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
+from auth import query_user, manager
 from tasks import docker_task, task_list_tasks, TaskResult
-from datetime import datetime
+from datetime import datetime, timedelta
+
 
 class TaskSubmission(BaseModel):
     start_time: datetime = datetime.now()
@@ -113,6 +119,52 @@ def get_status(task_id):
 @app.get('/list_tasks')
 def list_tasks():
     return task_list_tasks.run()
+
+# @app.post("/token", response_model=Token)
+# async def login_for_access_token(
+#     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+# ):
+#     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+#     if not user:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(
+#         data={"sub": user.username}, expires_delta=access_token_expires
+#     )
+#     return {"access_token": access_token, "token_type": "bearer"}
+
+
+# @app.get("/users/me/", response_model=User)
+# async def read_users_me(
+#     current_user: Annotated[User, Depends(get_current_active_user)]
+# ):
+#     return current_user
+
+@app.post('/login')
+def login(data: OAuth2PasswordRequestForm = Depends()):
+    username = data.username
+    password = data.password
+
+    user = query_user(username)
+    if not user:
+        raise InvalidCredentialsException
+    elif password != user['password']:
+        raise InvalidCredentialsException
+
+    access_token = manager.create_access_token(
+        data={'sub': username}
+    )
+    response = JSONResponse({'access_token': access_token})
+    manager.set_cookie(response, access_token)
+    return response
+
+@app.get('/protected')
+def protected_route(user=Depends(manager)):
+    return {'user': user}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)

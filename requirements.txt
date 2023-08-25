@@ -7,3 +7,6 @@ pydantic~=2.3.0
 pytest
 jinja2
 python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+fastapi-login
