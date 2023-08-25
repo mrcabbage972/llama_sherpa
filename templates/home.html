@@ -21,7 +21,7 @@
               <tr>
                   <td><a href="/task_info/{{ key }}">{{ key }}</a></td>
                   <td>{{ value["status"] }}</td>
-                  <td>{{ value["start_time"].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                  <td>{{ value.task_submission["start_time"].strftime('%Y-%m-%d %H:%M:%S') }}</td>
               </tr>
         {% endfor %}
 </table>

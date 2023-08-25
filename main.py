@@ -12,19 +12,25 @@ from starlette.templating import Jinja2Templates
 from tasks import docker_task, task_list_tasks, TaskResult
 from datetime import datetime
 
+class TaskSubmission(BaseModel):
+    start_time: datetime = datetime.now()
+    image: str = 'python:3.11.2-slim-buster'
+    command: str = 'date'
+    gpus: int = 0
+    dry_run: bool = False
+    env: list = []
 
 class TaskData(BaseModel):
     status: str = 'SUCCESS'
-    start_time: datetime = datetime.now()
+    task_submission: TaskSubmission = TaskSubmission()
     task_result: Union[TaskResult, None] = None
 
 class TaskRegistry:
     def __init__(self):
-        # TODO: refactor with pydantic
-        self.tasks = {'a': TaskData()}
+        self.tasks = {'a': TaskData()} # TODO: set to empty dict
 
-    def add_task(self, task):
-        self.tasks[task.id] = TaskData(status=task.status)
+    def add_task(self, celery_task, task_submission: TaskSubmission):
+        self.tasks[celery_task.id] = TaskData(status=celery_task.status, task_submission=task_submission)
 
     def get_tasks(self):
         return self.tasks
@@ -36,11 +42,10 @@ class TaskRegistry:
             self.tasks[task_id].status = task_result.status
             self.tasks[task_id].task_result = task_result.result #TaskResult.model_validate(task_result.result)
 
-        result_dict = self.tasks[task_id].dict()
+        result_dict = self.tasks[task_id].task_submission.dict()
         result_dict.update({'task_id': task_id})
         if self.tasks[task_id].task_result is not None:
             result_dict.update(self.tasks[task_id].task_result)
-        del result_dict['task_result']
         return result_dict
 
 
@@ -72,8 +77,10 @@ def submit_job(request: Request, image: Annotated[str, Form()],
                command: Annotated[str, Form()],
                env: Annotated[str, Form()],
                dry_run: Annotated[bool, Form()] = False):
-    task = docker_task.delay(image, command, 0, dry_run, env.split(';'))
-    app.state.task_registry.add_task(task)
+    num_gpus = 0 # TODO: add to form
+    env = env.split(';')
+    task = docker_task.delay(image, command, num_gpus, dry_run, env)
+    app.state.task_registry.add_task(task, TaskSubmission(image=image, command=command, dry_run=dry_run, gpus=num_gpus, env=env))
     return fastapi.responses.RedirectResponse(
         '/',
         status_code=status.HTTP_302_FOUND)
