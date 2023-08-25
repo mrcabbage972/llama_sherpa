@@ -19,3 +19,9 @@ This simple task scheduling system is designed to fill that gap. It provides the
 4. Tracking of running, scheduled and completed tasks.
 5. Each task can request a number of GPU's. It will be queued until the requested resources are available.
 6. Commonly used tasks can be pre-configured to be scheduled with one click.
+
+# Installation
+TBD
+
+# Usage
+TBD
