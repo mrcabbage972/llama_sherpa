@@ -3,14 +3,19 @@
 {% block content %}
 
       <div class="starter-template">
-            Task Info<br>
-            <table border="1">
-            {% for key, value in result.items() %}
-              <tr>
-                  <td>{{ key }}</td>
-                  <td>{{ value }}</td>
-              </tr>
-            {% endfor %}
-</table>
+          <h4 class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">Task Info</span>
+      </h4>
+          <ul class="list-group mb-3">
+              {% for key, value in result.items() %}
+        <li class="list-group-item d-flex justify-content-between lh-condensed">
+          <div>
+            <h6 class="my-0">{{ key }}</h6>
+          </div>
+          <span class="text-muted">{{ value }}</span>
+        </li> {% endfor %}
+        </ul>
+
+
       </div>
 {% endblock %}
