@@ -59,6 +59,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
 app.state.task_registry = TaskRegistry()
+manager.useRequest(app)
 
 
 @app.get("/")
@@ -142,6 +143,12 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
     response = fastapi.responses.RedirectResponse('/', status_code=status.HTTP_302_FOUND)
     manager.set_cookie(response, access_token)
     return response
+
+@app.get("/logout")
+def logout():
+  response = fastapi.responses.RedirectResponse('/', status_code= 302)
+  response.delete_cookie(key =manager.cookie_name)
+  return response
 
 @app.get('/protected')
 def protected_route(user=Depends(manager)):
