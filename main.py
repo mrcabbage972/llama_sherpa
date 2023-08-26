@@ -13,7 +13,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
-from auth import query_user, manager
+from auth import query_user, manager, NotAuthenticatedException
 from tasks import docker_task, task_list_tasks, TaskResult
 from datetime import datetime, timedelta
 
@@ -147,6 +147,11 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
 @app.get('/protected')
 def protected_route(user=Depends(manager)):
     return {'user': user}
+
+@app.exception_handler(NotAuthenticatedException)
+async def http_exception_handler(request, exc):
+    return templates.TemplateResponse("no_creds.html", context={"request": request})
+
 
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)

@@ -1,7 +1,12 @@
 from fastapi_login import LoginManager
+from fastapi_login.exceptions import InvalidCredentialsException
 
 SECRET = "super-secret-key"
-manager = LoginManager(SECRET, '/login', use_cookie=True)
+
+class NotAuthenticatedException(Exception):
+    pass
+
+manager = LoginManager(SECRET, '/login', use_cookie=True, custom_exception=NotAuthenticatedException)
 
 DB = {
     'users': {
