@@ -13,6 +13,7 @@ from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
 from app.auth import query_user, manager, NotAuthenticatedException
+from app.db.db import SessionLocal, User
 from app.tasks import docker_task, task_list_tasks, TaskResult
 
 
@@ -151,5 +152,16 @@ async def http_exception_handler(request, exc):
     return templates.TemplateResponse("no_creds.html", context={"request": request})
 
 
+def ensure_first_user():
+    sess = SessionLocal()
+    users = sess.query(User).all()
+    if len(users) == 0:
+        # TODO: get from config
+        sess.add(User(username="a", password="a", email="g", is_superuser=True))
+        sess.commit()
+
+
 if __name__ == '__main__':
+    ensure_first_user()
+
     uvicorn.run(app, host="127.0.0.1", port=8000)

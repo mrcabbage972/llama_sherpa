@@ -1,6 +1,8 @@
 from fastapi_login import LoginManager
-from fastapi_login.exceptions import InvalidCredentialsException
 
+from app.db.db import User, SessionLocal
+
+# TODO: move to settings
 SECRET = "super-secret-key"
 
 class NotAuthenticatedException(Exception):
@@ -8,6 +10,7 @@ class NotAuthenticatedException(Exception):
 
 manager = LoginManager(SECRET, '/login', use_cookie=True, custom_exception=NotAuthenticatedException)
 
+# TODO: remove, not used anymore
 DB = {
     'users': {
         'johndoe': {
@@ -24,4 +27,7 @@ def query_user(user_id: str):
     :param user_id: E-Mail of the user
     :return: None or the user object
     """
-    return DB['users'].get(user_id)
+    sess = SessionLocal()
+    user = sess.query(User).where(User.username == user_id).one()
+
+    return user.__dict__ if user else None
