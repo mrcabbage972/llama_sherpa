@@ -1,4 +1,4 @@
-# lite_docker_task_queue
+# Llama Sherpa
 WARNING: This project is still a work in progress and is not released.
 
 
