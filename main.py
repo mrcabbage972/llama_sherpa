@@ -140,7 +140,7 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
     access_token = manager.create_access_token(
         data={'sub': username}
     )
-    response = JSONResponse({'access_token': access_token})
+    response = fastapi.responses.RedirectResponse('/', status_code=status.HTTP_302_FOUND)
     manager.set_cookie(response, access_token)
     return response
 
