@@ -17,7 +17,7 @@ app = Celery(__name__, broker=redis_url, backend=redis_url)
 class TaskResult(BaseModel):
     end_time: Union[datetime, None] = datetime.now()
     stdout: Union[str, None] = None
-    success: Union[str, None] = None
+    success: Union[bool, None] = None
 
 
 @app.task
@@ -31,6 +31,7 @@ def dummy_task():
 
 @app.task()
 def docker_task(image, command, gpus, dry_run, env):
+    return_val = None
     if not dry_run:
         client = docker.from_env()
 
@@ -45,13 +46,14 @@ def docker_task(image, command, gpus, dry_run, env):
                                   command,
                                     environment=env,
                                   device_requests=device_requests)
+            return_val = TaskResult(stdout=result.decode("utf-8"), success=True)
         except ContainerError as e:
-            return TaskResult(stdout=str(e), success=False)
+            return_val =  TaskResult(stdout=str(e), success=False)
         except APIError as e:
-            return TaskResult(stdout=str(e), success=False)
-        return TaskResult(stdout=result.decode("utf-8"), success=True)
+            return_val = TaskResult(stdout=str(e), success=False)
     else:
-        return TaskResult(stdout="", success=True)
+        return_val = TaskResult(stdout="", success=True)
+    return return_val.model_dump()
 
 @app.task()
 def task_list_tasks():

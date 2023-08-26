@@ -1,21 +1,19 @@
+from datetime import datetime
 from typing import Annotated, Union
 
 import fastapi
 import uvicorn
 from celery.result import AsyncResult
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
-from fastapi.openapi.models import Response
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
 from pydantic import BaseModel
 from starlette import status
-from starlette.responses import JSONResponse, RedirectResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
-from auth import query_user, manager, NotAuthenticatedException
-from tasks import docker_task, task_list_tasks, TaskResult
-from datetime import datetime, timedelta
+from app.auth import query_user, manager, NotAuthenticatedException
+from app.tasks import docker_task, task_list_tasks, TaskResult
 
 
 class TaskSubmission(BaseModel):
@@ -56,8 +54,8 @@ class TaskRegistry:
 
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+templates = Jinja2Templates(directory="app/templates")
 
 app.state.task_registry = TaskRegistry()
 

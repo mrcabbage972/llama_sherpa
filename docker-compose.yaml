@@ -6,7 +6,7 @@ services:
     build: .
     ports:
       - 8004:8000
-    command: uvicorn main:app --host 0.0.0.0 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --reload
     volumes:
       - .:/usr/src/app
     environment:
@@ -17,7 +17,7 @@ services:
 
   worker:
     build: .
-    command: celery -A tasks worker --loglevel=info
+    command: celery -A app.tasks worker --loglevel=info
     volumes:
       - .:/usr/src/app
       - /var/run/docker.sock:/var/run/docker.sock
