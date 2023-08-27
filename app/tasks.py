@@ -64,7 +64,7 @@ def docker_task(self, image, command, gpus, dry_run, env):
             container.remove()
 
             return_val = TaskResult(stdout=out.decode("utf-8"), success=True)
-        except ContainerError | ReadTimeout | APIError as e:
+        except (ContainerError, ReadTimeout, APIError) as e:
             return_val =  TaskResult(stdout=str(e), success=False)
     else:
         return_val = TaskResult(stdout="", success=True)
