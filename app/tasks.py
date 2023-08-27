@@ -1,3 +1,4 @@
+import time
 from typing import Union
 
 import docker
@@ -5,9 +6,9 @@ from celery.app import Celery
 from datetime import datetime
 import os
 
-from celery.bin.control import inspect
 from docker.errors import ContainerError, APIError
 from pydantic import BaseModel
+from requests import ReadTimeout
 
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
 
@@ -29,8 +30,8 @@ def dummy_task():
         f.write("hello!")
 
 
-@app.task()
-def docker_task(image, command, gpus, dry_run, env):
+@app.task(bind=True)
+def docker_task(self, image, command, gpus, dry_run, env):
     return_val = None
     if not dry_run:
         client = docker.from_env()
@@ -42,15 +43,29 @@ def docker_task(image, command, gpus, dry_run, env):
             device_requests = None
 
         try:
-            result = client.containers.run(image,
+            container = client.containers.run(image,
                                   command,
                                     environment=env,
-                                  device_requests=device_requests)
-            return_val = TaskResult(stdout=result.decode("utf-8"), success=True)
-        except ContainerError as e:
+                                  device_requests=device_requests,
+                                           detach=True)
+
+            while container.status != 'exited':
+                container.reload()
+                output_accum = container.logs(stdout=True).decode("utf-8")
+                self.update_state(state='PROGRESS', meta={'log': output_accum})
+                time.sleep(1)
+            exit_status = container.wait(timeout=1)['StatusCode']
+
+            if exit_status != 0:
+                out = container.logs(stdout=False, stderr=True)
+            else:
+                out = container.logs(
+                    stdout=True, stderr=False, stream=False, follow=False)
+            container.remove()
+
+            return_val = TaskResult(stdout=out.decode("utf-8"), success=True)
+        except ContainerError | ReadTimeout | APIError as e:
             return_val =  TaskResult(stdout=str(e), success=False)
-        except APIError as e:
-            return_val = TaskResult(stdout=str(e), success=False)
     else:
         return_val = TaskResult(stdout="", success=True)
     return return_val.model_dump()

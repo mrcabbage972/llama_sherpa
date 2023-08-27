@@ -29,6 +29,7 @@ class TaskData(BaseModel):
     status: str = 'SUCCESS'
     task_submission: TaskSubmission = TaskSubmission()
     task_result: Union[TaskResult, None] = None
+    log: str = None
 
 class TaskRegistry:
     def __init__(self):
@@ -47,10 +48,17 @@ class TaskRegistry:
             self.tasks[task_id].status = task_result.status
             self.tasks[task_id].task_result = task_result.result #TaskResult.model_validate(task_result.result)
 
+            if task_result.state == 'PROGRESS':
+                self.tasks[task_id].log = task_result.info.get('log', '')
+
+
         result_dict = self.tasks[task_id].task_submission.dict()
         result_dict.update({'task_id': task_id})
         if self.tasks[task_id].task_result is not None:
             result_dict.update(self.tasks[task_id].task_result)
+        # TODO: this creates duplication
+        if self.tasks[task_id].log is not None:
+            result_dict.update({'log': self.tasks[task_id].log})
         return result_dict
 
 
@@ -169,6 +177,8 @@ def ensure_first_user():
 
 
 if __name__ == '__main__':
+    from dotenv import load_dotenv
+    load_dotenv()
     ensure_first_user()
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8001)
