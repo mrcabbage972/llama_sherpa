@@ -7,6 +7,7 @@ from app.auth import manager, NotAuthenticatedException
 from app.data import TaskRegistry, SubmitDockerJob
 from app.db.db import SessionLocal, User
 from app.routers import frontend
+from app.routers.frontend import templates
 from app.tasks import docker_task
 
 app = FastAPI()
