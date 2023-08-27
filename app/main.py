@@ -1,14 +1,12 @@
 import uvicorn
-from celery.result import AsyncResult
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 
 from app.auth import manager, NotAuthenticatedException
-from app.data import TaskRegistry, SubmitDockerJob
+from app.data import TaskRegistry
 from app.db.db import SessionLocal, User
-from app.routers import frontend
+from app.routers import frontend, backend
 from app.routers.frontend import templates
-from app.tasks import docker_task
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -17,32 +15,7 @@ app.state.task_registry = TaskRegistry()
 manager.useRequest(app)
 
 app.include_router(frontend.router)
-
-
-@app.post("/tasks", status_code=201)
-def submit_docker_job(payload: SubmitDockerJob):
-    task = docker_task.delay(payload.image, payload.command, payload.gpus, payload.dry_run)
-    return {"task_id": task.id}
-
-
-@app.get("/task_status/{task_id}")
-def get_status(task_id):
-    task_result = AsyncResult(task_id)
-    result = {
-        "task_id": task_id,
-        "task_status": task_result.status and task_result.result['success'],
-        "task_result": task_result.result['stdout'],
-        "task_end_time": task_result.result['end_time']
-    }
-    return result
-
-
-
-
-
-@app.get('/protected')
-def protected_route(user=Depends(manager)):
-    return {'user': user}
+app.include_router(backend.router)
 
 
 @app.exception_handler(NotAuthenticatedException)
