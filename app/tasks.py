@@ -52,7 +52,9 @@ def docker_task(self, image, command, gpus, dry_run, env):
             while container.status != 'exited':
                 container.reload()
                 output_accum = container.logs(stdout=True).decode("utf-8")
-                self.update_state(state='PROGRESS', meta={'log': output_accum})
+
+                if not self.request.called_directly:
+                    self.update_state(state='PROGRESS', meta={'log': output_accum})
                 time.sleep(1)
             exit_status = container.wait(timeout=1)['StatusCode']
 
