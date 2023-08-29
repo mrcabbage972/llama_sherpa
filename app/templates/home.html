@@ -21,7 +21,24 @@
             {% for key, value in result.items() %}
               <tr>
                   <td><a href="/task_info/{{ key }}">{{ key }}</a></td>
-                  <td>{{ value["status"] }}</td>
+                  <td>
+                     <!-- {{ value["status"] }} -->
+                      <div class="container">
+
+        <!--{{ result['status'] }} -->
+            {% if value['status'] == 'SUCCESS' %}
+                    <span class="badge bg-success">Completed</span>
+                {% elif value['status'] == 'PENDING' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% elif value['status'] == 'ABORTED' %}
+                    <span class="badge bg-danger">Failed</span>
+                {% elif value['status'] == 'FAILURE' %}
+                    <span class="badge bg-danger">Failed</span>
+                {% else %}
+                    <span class="badge bg-secondary">Unknown</span>
+                {% endif %}
+
+                  </td>
                   <td>{{ value.task_submission["start_time"].strftime('%Y-%m-%d %H:%M:%S') }}</td>
               </tr>
         {% endfor %}
