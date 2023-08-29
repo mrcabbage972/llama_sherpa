@@ -1,3 +1,5 @@
+from collections import OrderedDict
+from operator import itemgetter
 from typing import Annotated, Optional
 
 from celery.contrib.abortable import AbortableAsyncResult
@@ -23,8 +25,12 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("/")
 def home(request: Request):
     request.app.state.task_registry.update_all()
+
+    task_dict = request.app.state.task_registry.get_tasks()
+    sorted_tasks = OrderedDict(sorted(task_dict.items(), key=lambda x: x[1].task_submission.start_time, reverse=True))
+
     return templates.TemplateResponse("home.html", context={"request": request,
-                                                            "result": request.app.state.task_registry.get_tasks()})
+                                                            "result": sorted_tasks})
 
 
 @router.get('/task_info/{task_id}')
