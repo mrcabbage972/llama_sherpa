@@ -22,6 +22,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/")
 def home(request: Request):
+    request.app.state.task_registry.update_all()
     return templates.TemplateResponse("home.html", context={"request": request,
                                                             "result": request.app.state.task_registry.get_tasks()})
 

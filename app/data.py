@@ -56,22 +56,26 @@ class TaskRegistry:
         return self.tasks
 
     def get_task(self, task_id, update=False):
-        # TODO: refactor, this is ugly
         if update:
-            task_result = AsyncResult(task_id)
-            self.tasks[task_id].status = task_result.status
-            if task_result.result is not None:
-                if 'is_aborted' in task_result.result and task_result.result['is_aborted']:
-                    self.tasks[task_id].status = 'ABORTED'
-                elif 'success' in task_result.result and not task_result.result['success']:
-                    self.tasks[task_id].status = 'FAILURE'
-
-            self.tasks[task_id].task_result = task_result.result #TaskResult.model_validate(task_result.result)
-
-            if task_result.state == 'PROGRESS':
-                self.tasks[task_id].log = task_result.info.get('log', '')
+            self.update_task(task_id)
 
         return self.tasks[task_id].model_dump()
+
+    def update_task(self, task_id):
+        task_result = AsyncResult(task_id)
+        self.tasks[task_id].status = task_result.status
+        if task_result.result is not None:
+            if 'is_aborted' in task_result.result and task_result.result['is_aborted']:
+                self.tasks[task_id].status = 'ABORTED' # TODO: create/reuse enum for states
+            elif 'success' in task_result.result and not task_result.result['success']:
+                self.tasks[task_id].status = 'FAILURE'
+        self.tasks[task_id].task_result = task_result.result
+        if task_result.state == 'PROGRESS':
+            self.tasks[task_id].log = task_result.info.get('log', '')
+
+    def update_all(self):
+        for task_id in self.tasks:
+            self.update_task(task_id)
 
 
 class SubmitDockerJob(BaseModel):
