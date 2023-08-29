@@ -46,6 +46,16 @@ class User(Base):
     email = Column(String, nullable=False)
     is_superuser = Column(Boolean, default=False)
 
+
+class TaskSubmission(Base):
+    id = Column(String, primary_key=True, index=True)
+    start_time = Column(String, nullable=False)
+    image = Column(String, nullable=False)
+    command = Column(String, nullable=False)
+    gpus = Column(Integer, nullable=False)
+    dry_run = Column(Boolean, nullable=False)
+    env = Column(String, nullable=False)
+
 Base.metadata.create_all(engine)
 
 pass

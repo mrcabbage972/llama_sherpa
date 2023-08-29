@@ -3,6 +3,7 @@ from typing import Union
 
 from celery.result import AsyncResult
 from pydantic import BaseModel
+from app.db.db import TaskSubmission as TaskSubmissionDB, SessionLocal
 
 
 class TaskSubmission(BaseModel):
@@ -30,10 +31,26 @@ class TaskData(BaseModel):
 
 class TaskRegistry:
     def __init__(self):
-        self.tasks = {'a': TaskData()} # TODO: set to empty dict
+        # populate from db
+        self.tasks = {}
+        self.session = SessionLocal()
+        query_result = self.session.query(TaskSubmissionDB).all()
+        for task_submission_db in query_result:
+            env = task_submission_db.env.split(';')
+            task_submission = TaskSubmission(start_time=task_submission_db.start_time,
+                                            image=task_submission_db.image, command=task_submission_db.command,
+                                            gpus=task_submission_db.gpus, dry_run=task_submission_db.dry_run,
+                                            env=env)
+            # TODO: currently not populating
+            self.tasks[task_submission_db.id] = TaskData(status='UNKNOWN', task_submission=task_submission)
 
     def add_task(self, celery_task, task_submission: TaskSubmission):
         self.tasks[celery_task.id] = TaskData(status=celery_task.status, task_submission=task_submission)
+        self.session.add(TaskSubmissionDB(id=celery_task.id, start_time=datetime.now(), image=task_submission.image,
+                            command=task_submission.command, gpus=task_submission.gpus, dry_run=task_submission.dry_run,
+                            env=';'.join(task_submission.env)))
+        self.session.commit()
+
 
     def get_tasks(self):
         return self.tasks
