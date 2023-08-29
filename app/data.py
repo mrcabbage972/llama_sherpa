@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 
 from celery.result import AsyncResult
 from pydantic import BaseModel
@@ -12,7 +12,7 @@ class TaskSubmission(BaseModel):
     command: str = 'date'
     gpus: int = 0
     dry_run: bool = False
-    env: list = []
+    env: Optional[list] = None
 
 
 class TaskResult(BaseModel):

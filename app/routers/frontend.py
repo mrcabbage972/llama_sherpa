@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from celery.contrib.abortable import AbortableAsyncResult
 from fastapi import APIRouter, Depends
@@ -39,7 +39,8 @@ def task_info(request: Request, task_id: str):
 def submit_job(request: Request, task_id: str = None):
     # TODO: use depends for this
     if task_id is None:
-        task = TaskSubmission()
+        task = TaskSubmission().model_dump()
+        task['env'] = ''
     else:
         session = SessionLocal()
         task = session.query(TaskSubmissionDB).filter(TaskSubmissionDB.id == task_id).one()
@@ -49,7 +50,7 @@ def submit_job(request: Request, task_id: str = None):
 @router.post("/submit")
 def submit_job(request: Request, image: Annotated[str, Form()],
                command: Annotated[str, Form()],
-               env: Annotated[str, Form()],
+               env: Optional[str] = Form(''),
                dry_run: Annotated[bool, Form()] = False):
     num_gpus = 0  # TODO: add to form
     env = env.split(';')

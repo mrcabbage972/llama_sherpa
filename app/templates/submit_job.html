@@ -6,21 +6,57 @@
       <h4 class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-muted">Submit Docker Job</span>
       </h4>
-   <form  method="post">
+   <form  class="needs-validation" method="post" novalidate>
 
     <label for="image">Image</label><br>
-    <input type="text" id="image" class="form-control" name="image" value="{{ task['image'] }}"><br>
-    <!-- class="form-control" aria-describedby="basic-addon3" -->
+    <input type="text" id="image" class="form-control" name="image" value="{{ task['image'] }}" required><br>
+        <div class="invalid-feedback">
+          Value missing.
+    </div>
+       <!-- class="form-control" aria-describedby="basic-addon3" -->
 
     <label for="command">Command</label><br>
-       <textarea id="command" class="form-control" name="command">{{ task['command'] }}</textarea><br>
-    <label for="env">Environment Variables</label><br>
-    <input type="text" id="env" class="form-control" name="env" value="{{ task['env'] }}"><br>
+       <textarea id="command" class="form-control" name="command" required>{{ task['command'] }}</textarea><br>
+    <div class="invalid-feedback">
+          Value missing.
+    </div>
+
+
+       <label for="env">Environment Variables</label><br>
+<small id="envHelp" class="form-text text-muted">Enter semicolon-separated value pairs, e.g. ENV1=Val1;ENV2=Val2</small>
+
+    <input type="text" id="env" class="form-control" name="env" value="{{ task['env'] }}">
+
+
+       <br>
     <label for="dry_run">Dry Run</label><br>
    <input type="checkbox" name="dry_run" id="dry_run"  /><br>
 
       <input type="submit" class="btn btn-primary btn-lg btn-block" value="Submit">
+
   </form>
   </div>
+
+
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.getElementsByClassName('needs-validation');
+    // Loop over them and prevent submission
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>
 
 {% endblock %}
