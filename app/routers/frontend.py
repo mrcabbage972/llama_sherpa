@@ -11,6 +11,8 @@ from starlette.templating import Jinja2Templates
 
 from app.auth import query_user, manager
 from app.data import TaskSubmission
+from app.db.db import SessionLocal
+from app.db.db import TaskSubmission as TaskSubmissionDB
 from app.tasks import docker_task
 
 router = APIRouter()
@@ -28,12 +30,20 @@ def home(request: Request):
 def task_info(request: Request, task_id: str):
     task = request.app.state.task_registry.get_task(task_id, update=True)
     abort_url = f'/abort/{task_id}'
-    return templates.TemplateResponse("task_info.html", context={"request": request, "result": task, 'abort_url': abort_url})
+    resubmit_url = f'/submit?task_id={task_id}'
+    context_dict = {"request": request, "result": task, 'abort_url': abort_url, 'resubmit_url': resubmit_url}
+    return templates.TemplateResponse("task_info.html", context=context_dict)
 
 
 @router.get("/submit")
-def submit_job(request: Request):
-    return templates.TemplateResponse("submit_job.html", context={"request": request})
+def submit_job(request: Request, task_id: str = None):
+    # TODO: use depends for this
+    if task_id is None:
+        task = TaskSubmission()
+    else:
+        session = SessionLocal()
+        task = session.query(TaskSubmissionDB).filter(TaskSubmissionDB.id == task_id).one()
+    return templates.TemplateResponse("submit_job.html", context={"request": request, "task": task})
 
 
 @router.post("/submit")

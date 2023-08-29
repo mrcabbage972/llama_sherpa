@@ -9,13 +9,13 @@
    <form  method="post">
 
     <label for="image">Image</label><br>
-    <input type="text" id="image" class="form-control" name="image" value="python:3.11.2-slim-buster"><br>
+    <input type="text" id="image" class="form-control" name="image" value="{{ task['image'] }}"><br>
     <!-- class="form-control" aria-describedby="basic-addon3" -->
 
     <label for="command">Command</label><br>
-       <textarea id="command" class="form-control" name="command" value="date">date</textarea><br>
+       <textarea id="command" class="form-control" name="command">{{ task['command'] }}</textarea><br>
     <label for="env">Environment Variables</label><br>
-    <input type="text" id="env" class="form-control" name="env" value="VAR1=val1;VAR2=val2"><br>
+    <input type="text" id="env" class="form-control" name="env" value="{{ task['env'] }}"><br>
     <label for="dry_run">Dry Run</label><br>
    <input type="checkbox" name="dry_run" id="dry_run"  /><br>
 
