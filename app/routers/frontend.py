@@ -50,10 +50,13 @@ def submit_job(request: Request, task_id: str = None):
 @router.post("/submit")
 def submit_job(request: Request, image: Annotated[str, Form()],
                command: Annotated[str, Form()],
-               env: Optional[str] = Form(''),
+               env: Optional[str] = Form(None),
                dry_run: Annotated[bool, Form()] = False):
     num_gpus = 0  # TODO: add to form
-    env = env.split(';')
+    if env is not None:
+        env = env.split(';')
+    else:
+        env = []
     task = docker_task.delay(image, command, num_gpus, dry_run, env)
     request.app.state.task_registry.add_task(task, TaskSubmission(image=image, command=command, dry_run=dry_run,
                                                                   gpus=num_gpus, env=env))

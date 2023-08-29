@@ -63,7 +63,7 @@ class TaskRegistry:
             if task_result.result is not None:
                 if 'is_aborted' in task_result.result and task_result.result['is_aborted']:
                     self.tasks[task_id].status = 'ABORTED'
-                elif not task_result.result['success']:
+                elif 'success' in task_result.result and not task_result.result['success']:
                     self.tasks[task_id].status = 'FAILURE'
 
             self.tasks[task_id].task_result = task_result.result #TaskResult.model_validate(task_result.result)
