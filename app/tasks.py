@@ -2,15 +2,15 @@ import logging
 import os
 import time
 from datetime import datetime
-from typing import Union
 
 import celery
 import docker
 from celery.app import Celery
 from celery.contrib.abortable import AbortableTask
 from docker.errors import ContainerError, APIError
-from pydantic import BaseModel
 from requests import ReadTimeout
+
+from app.data import TaskResult
 
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
 
@@ -18,13 +18,6 @@ app = Celery(__name__, broker=redis_url, backend=redis_url)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-
-class TaskResult(BaseModel):
-    end_time: Union[datetime, None] = datetime.now()
-    stdout: Union[str, None] = None
-    success: Union[bool, None] = None
-    is_aborted: Union[bool, None] = False
 
 
 @app.task

@@ -4,8 +4,6 @@ from typing import Union
 from celery.result import AsyncResult
 from pydantic import BaseModel
 
-from app.tasks import TaskResult
-
 
 class TaskSubmission(BaseModel):
     start_time: datetime = datetime.now()
@@ -62,3 +60,10 @@ class SubmitDockerJob(BaseModel):
     command: str = 'echo "hello world"'
     gpus: int = 0
     dry_run: bool = False
+
+
+class TaskResult(BaseModel):
+    end_time: Union[datetime, None] = datetime.now()
+    stdout: Union[str, None] = None
+    success: Union[bool, None] = None
+    is_aborted: Union[bool, None] = False
