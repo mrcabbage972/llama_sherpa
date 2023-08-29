@@ -14,6 +14,13 @@ class TaskSubmission(BaseModel):
     env: list = []
 
 
+class TaskResult(BaseModel):
+    end_time: Union[datetime, None] = datetime.now()
+    stdout: Union[str, None] = None
+    success: Union[bool, None] = None
+    is_aborted: Union[bool, None] = False
+
+
 class TaskData(BaseModel):
     status: str = 'SUCCESS'
     task_submission: TaskSubmission = TaskSubmission()
@@ -61,9 +68,3 @@ class SubmitDockerJob(BaseModel):
     gpus: int = 0
     dry_run: bool = False
 
-
-class TaskResult(BaseModel):
-    end_time: Union[datetime, None] = datetime.now()
-    stdout: Union[str, None] = None
-    success: Union[bool, None] = None
-    is_aborted: Union[bool, None] = False
