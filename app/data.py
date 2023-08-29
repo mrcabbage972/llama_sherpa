@@ -51,15 +51,7 @@ class TaskRegistry:
             if task_result.state == 'PROGRESS':
                 self.tasks[task_id].log = task_result.info.get('log', '')
 
-
-        result_dict = self.tasks[task_id].task_submission.dict()
-        result_dict.update({'task_id': task_id})
-        if self.tasks[task_id].task_result is not None:
-            result_dict.update(self.tasks[task_id].task_result)
-        # TODO: this creates duplication
-        if self.tasks[task_id].log is not None:
-            result_dict.update({'log': self.tasks[task_id].log})
-        return result_dict
+        return self.tasks[task_id].model_dump()
 
 
 class SubmitDockerJob(BaseModel):
