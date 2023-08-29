@@ -1,11 +1,13 @@
+import logging
+import os
 import time
+from datetime import datetime
 from typing import Union
 
+import celery
 import docker
 from celery.app import Celery
-from datetime import datetime
-import os
-
+from celery.contrib.abortable import AbortableTask
 from docker.errors import ContainerError, APIError
 from pydantic import BaseModel
 from requests import ReadTimeout
@@ -14,11 +16,15 @@ redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 app = Celery(__name__, broker=redis_url, backend=redis_url)
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 class TaskResult(BaseModel):
     end_time: Union[datetime, None] = datetime.now()
     stdout: Union[str, None] = None
     success: Union[bool, None] = None
+    is_aborted: Union[bool, None] = False
 
 
 @app.task
@@ -30,9 +36,14 @@ def dummy_task():
         f.write("hello!")
 
 
-@app.task(bind=True)
+class DockerTask(celery.Task):
+    def __init__(self):
+        super().__init__()
+        self.container = None
+        self.hi = False
+
+@app.task(bind=True, base=AbortableTask)
 def docker_task(self, image, command, gpus, dry_run, env):
-    return_val = None
     if not dry_run:
         client = docker.from_env()
 
@@ -43,29 +54,40 @@ def docker_task(self, image, command, gpus, dry_run, env):
             device_requests = None
 
         try:
-            container = client.containers.run(image,
+            self.container = client.containers.run(image,
                                   command,
                                     environment=env,
                                   device_requests=device_requests,
                                            detach=True)
 
-            while container.status != 'exited':
-                container.reload()
-                output_accum = container.logs(stdout=True).decode("utf-8")
+            is_aborted = False
+            while self.container.status != 'exited':
+                if self.is_aborted():
+                    is_aborted = True
+                    break
+
+                self.container.reload()
+                output_accum = self.container.logs(stdout=True).decode("utf-8")
 
                 if not self.request.called_directly:
                     self.update_state(state='PROGRESS', meta={'log': output_accum})
                 time.sleep(1)
-            exit_status = container.wait(timeout=1)['StatusCode']
 
-            if exit_status != 0:
-                out = container.logs(stdout=False, stderr=True)
+            if is_aborted:
+                self.container.stop(timeout=10)
+                self.container.remove()
+                return_val = TaskResult(stdout=None, success=False, is_aborted=True)
             else:
-                out = container.logs(
-                    stdout=True, stderr=False, stream=False, follow=False)
-            container.remove()
+                exit_status = self.container.wait(timeout=1)['StatusCode']
 
-            return_val = TaskResult(stdout=out.decode("utf-8"), success=True)
+                if exit_status != 0:
+                    out = self.container.logs(stdout=False, stderr=True)
+                else:
+                    out = self.container.logs(
+                        stdout=True, stderr=False, stream=False, follow=False)
+                self.container.remove()
+
+                return_val = TaskResult(stdout=out.decode("utf-8"), success=True)
         except (ContainerError, ReadTimeout, APIError) as e:
             return_val =  TaskResult(stdout=str(e), success=False)
     else:

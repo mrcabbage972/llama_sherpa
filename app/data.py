@@ -38,6 +38,9 @@ class TaskRegistry:
         if update:
             task_result = AsyncResult(task_id)
             self.tasks[task_id].status = task_result.status
+            if task_result.result is not None and 'is_aborted' in task_result.result and task_result.result['is_aborted']:
+                self.tasks[task_id].status = 'ABORTED'
+
             self.tasks[task_id].task_result = task_result.result #TaskResult.model_validate(task_result.result)
 
             if task_result.state == 'PROGRESS':
