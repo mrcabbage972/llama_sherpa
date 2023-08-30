@@ -6,13 +6,14 @@ from fastapi import APIRouter, Depends
 from fastapi import Request, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
+from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
 from app.auth import query_user, manager
 from app.data import TaskSubmission
-from app.db.db import SessionLocal
+from app.db.db import SessionLocal, get_db, User
 from app.db.db import TaskSubmission as TaskSubmissionDB
 from app.settings import Settings, get_settings
 from app.tasks import docker_task
@@ -58,11 +59,11 @@ def submit_job(request: Request, task_id: str = None,
 
 @router.post("/submit")
 def submit_job(
-               request: Request, image: Annotated[str, Form()],
-               command: Annotated[str, Form()],
-               env: Optional[str] = Form(None),
-               dry_run: Annotated[bool, Form()] = False,
-               user=Depends(manager) if get_settings().require_login_for_submit else None):
+        request: Request, image: Annotated[str, Form()],
+        command: Annotated[str, Form()],
+        env: Optional[str] = Form(None),
+        dry_run: Annotated[bool, Form()] = False,
+        user=Depends(manager) if get_settings().require_login_for_submit else None):
     num_gpus = 0  # TODO: add to form
     if env is not None:
         env = env.split(';')
@@ -82,6 +83,7 @@ def abort(request: Request, task_id: str):
     return RedirectResponse(
         '/',
         status_code=status.HTTP_302_FOUND)
+
 
 @router.get('/login')
 def login(request: Request):
@@ -112,3 +114,22 @@ def logout():
     response = RedirectResponse('/', status_code=302)
     response.delete_cookie(key=manager.cookie_name)
     return response
+
+
+@router.get('/signup')
+def signup(request: Request):
+    return templates.TemplateResponse("signup.html", context={"request": request})
+
+@router.post("/signup")
+def signup(username: Annotated[str, Form()],
+           email: Annotated[str, Form()],
+           password: Annotated[str, Form()],
+           db: Session = Depends(get_db)):
+    # TODO: hash password
+    #hashed_password = hash_password(password)  # Implement password hashing function
+
+    user = User(username=username, email=email, password=password, is_superuser=False)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
