@@ -25,6 +25,8 @@
                     <span class="badge bg-success">Completed</span>
                 {% elif result['status'] == 'PENDING' %}
                     <span class="badge bg-warning text-dark">Pending</span>
+            {% elif value['status'] == 'PROGRESS' %}
+                    <span class="badge bg-warning text-dark">Progress</span>
                 {% elif result['status'] == 'ABORTED' %}
                     <span class="badge bg-warning">Aborted</span>
                 {% elif result['status'] == 'FAILURE' %}
