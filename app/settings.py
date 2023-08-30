@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     first_superuser_password: str = None
     first_superuser_email: str = 'fake@email.com'
 
+    # Flag that determines whether to require login for submitting jobs
+    require_login_for_submit: bool = True
+
     model_config = SettingsConfigDict(env_file=".env", extra='allow')
 
 

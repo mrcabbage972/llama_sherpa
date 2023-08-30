@@ -14,6 +14,7 @@ from app.auth import query_user, manager
 from app.data import TaskSubmission
 from app.db.db import SessionLocal
 from app.db.db import TaskSubmission as TaskSubmissionDB
+from app.settings import Settings, get_settings
 from app.tasks import docker_task
 
 router = APIRouter()
@@ -42,7 +43,9 @@ def task_info(request: Request, task_id: str):
 
 
 @router.get("/submit")
-def submit_job(request: Request, task_id: str = None):
+def submit_job(request: Request, task_id: str = None,
+               user=Depends(manager) if get_settings().require_login_for_submit else None
+               ):
     # TODO: use depends for this
     if task_id is None:
         task = TaskSubmission().model_dump()
@@ -54,10 +57,12 @@ def submit_job(request: Request, task_id: str = None):
 
 
 @router.post("/submit")
-def submit_job(request: Request, image: Annotated[str, Form()],
+def submit_job(
+               request: Request, image: Annotated[str, Form()],
                command: Annotated[str, Form()],
                env: Optional[str] = Form(None),
-               dry_run: Annotated[bool, Form()] = False):
+               dry_run: Annotated[bool, Form()] = False,
+               user=Depends(manager) if get_settings().require_login_for_submit else None):
     num_gpus = 0  # TODO: add to form
     if env is not None:
         env = env.split(';')
