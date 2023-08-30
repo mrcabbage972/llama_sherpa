@@ -32,11 +32,13 @@
                     {% endif %}
 
             </li>
+
+            {% if not request.state.user %}
             <li class="nav-item">
                 <a class="nav-link" href="/signup">
                    Signup
                         </a>
-
+{% endif %}
 
             </li>
         </ul>
