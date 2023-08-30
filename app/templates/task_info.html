@@ -26,7 +26,7 @@
                 {% elif result['status'] == 'PENDING' %}
                     <span class="badge bg-warning text-dark">Pending</span>
                 {% elif result['status'] == 'ABORTED' %}
-                    <span class="badge bg-danger">Failed</span>
+                    <span class="badge bg-warning">Aborted</span>
                 {% elif result['status'] == 'FAILURE' %}
                     <span class="badge bg-danger">Failed</span>
                 {% else %}
@@ -75,7 +75,10 @@
 
 
         <a href="/" class="btn btn-primary">Back</a>
+
+      {% if result['status'] == 'PENDING' or result['status'] == 'PROGRESS' %}
         <a href="{{ abort_url }}" class="btn btn-primary">Abort</a>
+      {% endif %}
         <a href="{{ resubmit_url }}" class="btn btn-primary">Resubmit</a>
 
 

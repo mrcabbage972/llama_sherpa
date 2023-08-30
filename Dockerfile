@@ -2,7 +2,7 @@
 FROM python:3.11.2-slim-buster
 
 # set work directory
-WORKDIR .
+WORKDIR /usr/src/app
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -14,4 +14,4 @@ COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy project
-COPY . .
+COPY . /usr/src/app
