@@ -7,8 +7,12 @@ REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 
 
 class Settings(BaseSettings):
-    db_file: str = f"sqlite:///{REPO_ROOT}/example.db"
+    db_file: str = f"sqlite:///{REPO_ROOT}/internal.db"
     secret: str = "super-secret-key" # TODO: move to .env
+
+    first_superuser_username: str = "admin"
+    first_superuser_password: str = None
+    first_superuser_email: str = 'fake@email.com'
 
     model_config = SettingsConfigDict(env_file=".env", extra='allow')
 

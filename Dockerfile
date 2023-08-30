@@ -2,7 +2,7 @@
 FROM python:3.11.2-slim-buster
 
 # set work directory
-WORKDIR /usr/src/app
+WORKDIR .
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1

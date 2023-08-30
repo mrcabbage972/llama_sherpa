@@ -7,6 +7,7 @@ from app.data import TaskRegistry
 from app.db.db import SessionLocal, User
 from app.routers import frontend, backend
 from app.routers.frontend import templates
+from app.settings import get_settings
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -27,8 +28,10 @@ def ensure_first_user():
     sess = SessionLocal()
     users = sess.query(User).all()
     if len(users) == 0:
-        # TODO: get from config
-        sess.add(User(username="a", password="a", email="g", is_superuser=True))
+        sess.add(User(username=get_settings().first_superuser_username,
+                      password=get_settings().first_superuser_password,
+                      email=get_settings().first_superuser_email,
+                      is_superuser=True))
         sess.commit()
 
 
