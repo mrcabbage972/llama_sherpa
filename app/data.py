@@ -2,12 +2,12 @@ from datetime import datetime
 from typing import Union, Optional
 
 from celery.result import AsyncResult
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.db.db import TaskSubmission as TaskSubmissionDB, SessionLocal
 
 
 class TaskSubmission(BaseModel):
-    start_time: datetime = datetime.now()
+    start_time: datetime = Field(default_factory=datetime.utcnow)
     image: str = 'python:3.11.2-slim-buster'
     command: str = 'date'
     gpus: int = 0
