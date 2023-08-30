@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from operator import itemgetter
 from typing import Annotated, Optional
 
 from celery.contrib.abortable import AbortableAsyncResult

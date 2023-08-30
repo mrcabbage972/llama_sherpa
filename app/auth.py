@@ -1,16 +1,14 @@
 from fastapi_login import LoginManager
 
 from app.db.db import User, SessionLocal
-
-# TODO: move to settings
-SECRET = "super-secret-key"
+from app.settings import get_settings
 
 
 class NotAuthenticatedException(Exception):
     pass
 
 
-manager = LoginManager(SECRET, '/login', use_cookie=True, custom_exception=NotAuthenticatedException)
+manager = LoginManager(get_settings().secret, '/login', use_cookie=True, custom_exception=NotAuthenticatedException)
 
 
 @manager.user_loader()

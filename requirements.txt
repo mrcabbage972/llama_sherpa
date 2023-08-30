@@ -11,3 +11,4 @@ python-jose[cryptography]
 passlib[bcrypt]
 fastapi-login
 sqlalchemy
+pydantic_settings~=2.0.3

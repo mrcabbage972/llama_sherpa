@@ -4,10 +4,10 @@ from sqlalchemy import create_engine, Boolean, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
 
-from app.settings import settings
+from app.settings import get_settings
 
 engine = create_engine(
-    settings.db_file,
+    get_settings().db_file,
     # required for sqlite
     connect_args={"check_same_thread": False},
 )
