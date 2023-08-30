@@ -132,4 +132,4 @@ def signup(username: Annotated[str, Form()],
     db.add(user)
     db.commit()
     db.refresh(user)
-    return user
+    return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
