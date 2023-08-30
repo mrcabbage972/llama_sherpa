@@ -51,6 +51,12 @@
         if (form.checkValidity() === false) {
           event.preventDefault();
           event.stopPropagation();
+        } else {
+          // Disable the submit button
+          var submitButton = form.querySelector('[type="submit"]');
+          if (submitButton) {
+            submitButton.disabled = true;
+          }
         }
         form.classList.add('was-validated');
       }, false);
@@ -58,5 +64,6 @@
   }, false);
 })();
 </script>
+
 
 {% endblock %}
