@@ -8,6 +8,7 @@ from app.db.db import TaskSubmission as TaskSubmissionDB, SessionLocal
 
 class TaskSubmission(BaseModel):
     start_time: datetime = Field(default_factory=datetime.utcnow)
+    user: str = 'unknown'
     image: str = 'python:3.11.2-slim-buster'
     command: str = 'date'
     gpus: int = 0
@@ -38,6 +39,7 @@ class TaskRegistry:
         for task_submission_db in query_result:
             env = task_submission_db.env.split(';')
             task_submission = TaskSubmission(start_time=task_submission_db.start_time,
+                                             user=task_submission_db.username,
                                             image=task_submission_db.image, command=task_submission_db.command,
                                             gpus=task_submission_db.gpus, dry_run=task_submission_db.dry_run,
                                             env=env)
@@ -46,7 +48,8 @@ class TaskRegistry:
 
     def add_task(self, celery_task, task_submission: TaskSubmission):
         self.tasks[celery_task.id] = TaskData(status=celery_task.status, task_submission=task_submission)
-        self.session.add(TaskSubmissionDB(id=celery_task.id, start_time=datetime.now(), image=task_submission.image,
+        self.session.add(TaskSubmissionDB(id=celery_task.id, username=task_submission.user,
+                                          start_time=datetime.now(), image=task_submission.image,
                             command=task_submission.command, gpus=task_submission.gpus, dry_run=task_submission.dry_run,
                             env=';'.join(task_submission.env)))
         self.session.commit()

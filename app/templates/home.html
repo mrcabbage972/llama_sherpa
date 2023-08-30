@@ -16,11 +16,13 @@
             <!-- list the submitted tasks -->
             <table class="table">
                   <th>Task ID</th>
+                <th>User</th>
     <th>Status</th>
                 <th>Start Time</th>
             {% for key, value in result.items() %}
               <tr>
                   <td><a href="/task_info/{{ key }}">{{ key }}</a></td>
+                  <td>{{ value.task_submission['user'] }}</td>
                   <td>
                      <!-- {{ value["status"] }} -->
                       <div class="container">
@@ -39,7 +41,7 @@
                 {% else %}
                     <span class="badge bg-secondary">Unknown</span>
                 {% endif %}
-
+            </div>
                   </td>
                   <td>{{ value.task_submission["start_time"].strftime('%Y-%m-%d %H:%M:%S') }}</td>
               </tr>

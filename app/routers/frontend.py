@@ -63,14 +63,20 @@ def submit_job(
         command: Annotated[str, Form()],
         env: Optional[str] = Form(None),
         dry_run: Annotated[bool, Form()] = False,
-        user=Depends(manager) if get_settings().require_login_for_submit else None):
+        user=Depends(manager) if get_settings().require_login_for_submit else Depends(manager.optional)):
     num_gpus = 0  # TODO: add to form
     if env is not None:
         env = env.split(';')
     else:
         env = []
     task = docker_task.delay(image, command, num_gpus, dry_run, env)
-    request.app.state.task_registry.add_task(task, TaskSubmission(image=image, command=command, dry_run=dry_run,
+
+    if user is None:
+        username = 'unknown'
+    else:
+        username = user['username']
+
+    request.app.state.task_registry.add_task(task, TaskSubmission(image=image, user=username, command=command, dry_run=dry_run,
                                                                   gpus=num_gpus, env=env))
     return RedirectResponse(
         '/',

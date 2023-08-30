@@ -28,11 +28,11 @@ def ensure_first_user():
     sess = SessionLocal()
     users = sess.query(User).all()
     if len(users) == 0:
-        sess.add(User(username=get_settings().first_superuser_username,
-                      password=get_settings().first_superuser_password,
-                      email=get_settings().first_superuser_email,
-                      is_superuser=True))
+        user = User(username=get_settings().first_superuser_username, password=get_settings().first_superuser_password,
+                    email=get_settings().first_superuser_email, is_superuser=True)
+        sess.add(user)
         sess.commit()
+        sess.refresh(user)
 
 
 if __name__ == '__main__':

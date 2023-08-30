@@ -12,9 +12,11 @@ from requests import ReadTimeout
 
 from app.data import TaskResult
 
-redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+broker_url = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
 
-app = Celery(__name__, broker=redis_url, backend=redis_url)
+backend_url = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+
+app = Celery(__name__, broker=broker_url, backend=backend_url)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

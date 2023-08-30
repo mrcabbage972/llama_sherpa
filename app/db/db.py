@@ -49,6 +49,7 @@ class User(Base):
 
 class TaskSubmission(Base):
     id = Column(String, primary_key=True, index=True)
+    username = Column(String, nullable=True)
     start_time = Column(String, nullable=False)
     image = Column(String, nullable=False)
     command = Column(String, nullable=False)
