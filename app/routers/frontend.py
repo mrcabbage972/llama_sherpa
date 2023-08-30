@@ -4,18 +4,15 @@ from typing import Annotated, Optional
 from celery.contrib.abortable import AbortableAsyncResult
 from fastapi import APIRouter, Depends
 from fastapi import Request, Form
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi_login.exceptions import InvalidCredentialsException
-from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from app.auth import query_user, manager
+from app.auth import manager
 from app.data import TaskSubmission
-from app.db.db import SessionLocal, get_db, User
+from app.db.db import SessionLocal
 from app.db.db import TaskSubmission as TaskSubmissionDB
-from app.settings import Settings, get_settings
+from app.settings import get_settings
 from app.tasks import docker_task
 
 router = APIRouter()
@@ -91,51 +88,3 @@ def abort(request: Request, task_id: str):
         status_code=status.HTTP_302_FOUND)
 
 
-@router.get('/login')
-def login(request: Request):
-    return templates.TemplateResponse("login.html", context={"request": request})
-
-
-@router.post('/login')
-def login(data: OAuth2PasswordRequestForm = Depends()):
-    username = data.username
-    password = data.password
-
-    user = query_user(username)
-    if not user:
-        raise InvalidCredentialsException
-    elif password != user['password']:
-        raise InvalidCredentialsException
-
-    access_token = manager.create_access_token(
-        data={'sub': username}
-    )
-    response = RedirectResponse('/', status_code=status.HTTP_302_FOUND)
-    manager.set_cookie(response, access_token)
-    return response
-
-
-@router.get("/logout")
-def logout():
-    response = RedirectResponse('/', status_code=302)
-    response.delete_cookie(key=manager.cookie_name)
-    return response
-
-
-@router.get('/signup')
-def signup(request: Request):
-    return templates.TemplateResponse("signup.html", context={"request": request})
-
-@router.post("/signup")
-def signup(username: Annotated[str, Form()],
-           email: Annotated[str, Form()],
-           password: Annotated[str, Form()],
-           db: Session = Depends(get_db)):
-    # TODO: hash password
-    #hashed_password = hash_password(password)  # Implement password hashing function
-
-    user = User(username=username, email=email, password=password, is_superuser=False)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)

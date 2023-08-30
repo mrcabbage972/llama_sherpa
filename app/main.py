@@ -5,7 +5,7 @@ from starlette.staticfiles import StaticFiles
 from app.auth import manager, NotAuthenticatedException
 from app.data import TaskRegistry
 from app.db.db import SessionLocal, User
-from app.routers import frontend, backend
+from app.routers import frontend, backend, users
 from app.routers.frontend import templates
 from app.settings import get_settings
 
@@ -16,6 +16,7 @@ app.state.task_registry = TaskRegistry()
 manager.useRequest(app)
 
 app.include_router(frontend.router)
+app.include_router(users.router)
 app.include_router(backend.router)
 
 
