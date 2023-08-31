@@ -65,6 +65,7 @@
 
               {% endif %}
 
+{% if result['status'] == 'PROGRESS' %}
 <h5 class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-muted">Logs</span></h5>
           <div class="container">
@@ -74,6 +75,7 @@
 
     </div>
 </div>
+{% endif %}
 
 
         <a href="/" class="btn btn-primary">Back</a>

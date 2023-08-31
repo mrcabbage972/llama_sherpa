@@ -66,13 +66,16 @@ class TaskRegistry:
 
     def update_task(self, task_id):
         task_result = AsyncResult(task_id)
+
         self.tasks[task_id].status = task_result.status
         if task_result.result is not None:
             if 'is_aborted' in task_result.result and task_result.result['is_aborted']:
                 self.tasks[task_id].status = 'ABORTED' # TODO: create/reuse enum for states
             elif 'success' in task_result.result and not task_result.result['success']:
                 self.tasks[task_id].status = 'FAILURE'
-        self.tasks[task_id].task_result = task_result.result
+
+        if task_result.status in ('SUCCESS', 'FAILURE', 'ABORTED'):
+            self.tasks[task_id].task_result = task_result.result
         if task_result.state == 'PROGRESS':
             self.tasks[task_id].log = task_result.info.get('log', '')
 
