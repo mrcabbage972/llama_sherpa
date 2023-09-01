@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from app.auth import query_user, manager
+from app.auth import query_user, manager, verify_password, hash_password
 from app.db.db import User, get_db
 
 router = APIRouter()
@@ -29,7 +29,7 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
     user = query_user(username)
     if not user:
         raise InvalidCredentialsException
-    elif password != user['password']:
+    elif not verify_password(password, user['password']):
         raise InvalidCredentialsException
 
     access_token = manager.create_access_token(
@@ -57,9 +57,9 @@ def signup(username: Annotated[str, Form()],
            password: Annotated[str, Form()],
            db: Session = Depends(get_db)):
     # TODO: hash password
-    #hashed_password = hash_password(password)  # Implement password hashing function
+    hashed_password = hash_password(password)
 
-    user = User(username=username, email=email, password=password, is_superuser=False)
+    user = User(username=username, email=email, password=hashed_password, is_superuser=False)
     db.add(user)
     db.commit()
     db.refresh(user)
