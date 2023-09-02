@@ -10,6 +10,7 @@ from app.db.db import User, init_db_schema, get_session_maker
 from app.routers import frontend, backend, users, admin
 from app.routers.frontend import templates
 from app.settings import get_settings
+from app.user_manager import UserManager
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ def ensure_first_user():
 ensure_first_user()
 
 app.state.task_registry = TaskRegistry()
+app.state.user_manager = UserManager(get_session_maker()())
 
 app.include_router(frontend.router)
 app.include_router(users.router)

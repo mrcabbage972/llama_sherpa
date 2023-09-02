@@ -23,15 +23,11 @@ def login(request: Request):
 
 
 @router.post('/login')
-def login(data: OAuth2PasswordRequestForm = Depends()):
+def login(request: Request, data: OAuth2PasswordRequestForm = Depends()):
     username = data.username
     password = data.password
 
-    user = query_user(username)
-    if not user:
-        raise InvalidCredentialsException
-    elif not verify_password(password, user['password']):
-        raise InvalidCredentialsException
+    user = request.app.state.user_manager.authenticate(username, password)
 
     access_token = manager.create_access_token(
         data={'sub': username}
@@ -54,17 +50,11 @@ def signup(request: Request):
 
 
 @router.post("/signup")
-def signup(username: Annotated[str, Form()],
+def signup(request: Request,
+           username: Annotated[str, Form()],
            email: Annotated[str, Form()],
-           password: Annotated[str, Form()],
-           db: Session = Depends(get_db)):
-    # TODO: hash password
-    hashed_password = hash_password(password)
-
-    user = User(username=username, email=email, password=hashed_password, is_superuser=False)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+           password: Annotated[str, Form()]):
+    request.app.state.user_manager.create_user(username, email, password)
     return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
 
 
@@ -74,28 +64,22 @@ def signup(request: Request, username: str):
 
 
 @router.post("/change_password/{username}")
-def signup(username: str,
-           password: Annotated[str, Form()],
-           db: Session = Depends(get_db)):
-    user = db.query(User).where(User.username == username).one()
-    user.password = hash_password(password)
-    db.commit()
+def signup(request: Request,
+           username: str,
+           password: Annotated[str, Form()]):
+    request.app.state.user_manager.change_password(username, password)
     return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
 
 
 @router.get('/delete_user/{username}')
-def delete_user(username: str,
-                db: Session = Depends(get_db)):
-    user = db.query(User).where(User.username == username).one()
-    db.delete(user)
-    db.commit()
+def delete_user(request: Request,
+                username: str):
+    request.app.state.user_manager.delete_user(username)
     return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
 
 
 @router.get('/make_superuser/{username}')
-def make_superuser(username: str,
-                   db: Session = Depends(get_db)):
-    user = db.query(User).where(User.username == username).one()
-    user.is_superuser = True
-    db.commit()
+def make_superuser(request: Request,
+                   username: str):
+    request.app.state.user_manager.make_superuser(username)
     return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)

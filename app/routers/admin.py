@@ -12,7 +12,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get('/list_users')
-def login(request: Request, sess: Session = Depends(get_db), user=Depends(get_current_active_superuser)):
-    users = sess.query(User).all()
+def list_users(request: Request, user=Depends(get_current_active_superuser)):
+    users = request.app.state.user_manager.get_users()
 
     return templates.TemplateResponse("list_users.html", context={"request": request, 'users': users})
