@@ -19,6 +19,9 @@
                     <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.is_superuser }}</td>
+                <td>
+                    <a href="/change_password/{{ user.username }}" class="btn btn-primary">Change Password</a>
+                </td>
                         </tr>
                 {% endfor %}
                 </table>
