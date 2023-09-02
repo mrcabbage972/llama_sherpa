@@ -21,6 +21,7 @@ templates = Jinja2Templates(directory="app/templates")
 def login(request: Request):
     return templates.TemplateResponse("login.html", context={"request": request})
 
+
 @router.post('/login')
 def login(data: OAuth2PasswordRequestForm = Depends()):
     username = data.username
@@ -51,6 +52,7 @@ def logout():
 def signup(request: Request):
     return templates.TemplateResponse("signup.html", context={"request": request})
 
+
 @router.post("/signup")
 def signup(username: Annotated[str, Form()],
            email: Annotated[str, Form()],
@@ -64,3 +66,17 @@ def signup(username: Annotated[str, Form()],
     db.commit()
     db.refresh(user)
     return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
+
+
+@router.get('/change_password/{username}')
+def signup(request: Request, username: str):
+    return templates.TemplateResponse("change_password.html", context={"request": request, "username": username})
+
+@router.post("/change_password/{username}")
+def signup(username: str,
+           password: Annotated[str, Form()],
+           db: Session = Depends(get_db)):
+    user = db.query(User).where(User.username == username).one()
+    user.password = hash_password(password)
+    db.commit()
+    return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
