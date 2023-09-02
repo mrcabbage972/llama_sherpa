@@ -1,3 +1,4 @@
+import logging
 from typing import Generator
 
 from sqlalchemy import create_engine, Boolean, MetaData
@@ -6,25 +7,44 @@ from sqlalchemy import Column, Integer, String
 
 from app.settings import get_settings
 
-engine = create_engine(
-    get_settings().db_file,
-    # required for sqlite
-    connect_args={"check_same_thread": False},
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+logger = logging.getLogger(__name__)
+
+logger.info(f"Using database file: {get_settings().db_file}")
+
+engine = None
+SessionLocal = None
+
+
+def get_engine():
+    global engine
+    if not engine:
+        engine = create_engine(
+            get_settings().db_file,
+            # required for sqlite
+            connect_args={"check_same_thread": False},
+        )
+    return engine
+
+
+def get_session_maker():
+    global SessionLocal
+    if not SessionLocal:
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=get_engine())
+    return SessionLocal
+
 
 def get_db() -> Generator:
-    db = SessionLocal()
+    db = get_session_maker()()
     db.current_user_id = None
     try:
         yield db
     finally:
         db.close()
 
+
 import typing as t
 
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
-
 
 class_registry: t.Dict = {}
 
@@ -57,6 +77,7 @@ class TaskSubmission(Base):
     dry_run = Column(Boolean, nullable=False)
     env = Column(String, nullable=False)
 
-Base.metadata.create_all(engine)
 
-pass
+def init_db_schema():
+    logger.info("Initializing database schema")
+    Base.metadata.create_all(get_engine())

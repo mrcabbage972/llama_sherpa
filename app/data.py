@@ -3,7 +3,7 @@ from typing import Union, Optional
 
 from celery.result import AsyncResult
 from pydantic import BaseModel, Field
-from app.db.db import TaskSubmission as TaskSubmissionDB, SessionLocal
+from app.db.db import TaskSubmission as TaskSubmissionDB, SessionLocal, get_session_maker
 
 
 class TaskSubmission(BaseModel):
@@ -34,7 +34,7 @@ class TaskRegistry:
     def __init__(self):
         # populate from db
         self.tasks = {}
-        self.session = SessionLocal()
+        self.session = get_session_maker()()
         query_result = self.session.query(TaskSubmissionDB).all()
         for task_submission_db in query_result:
             env = task_submission_db.env.split(';')

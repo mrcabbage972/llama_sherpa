@@ -1,7 +1,7 @@
 import bcrypt
 from fastapi_login import LoginManager
 
-from app.db.db import User, SessionLocal
+from app.db.db import User, get_session_maker
 from app.settings import get_settings
 
 
@@ -19,7 +19,7 @@ def query_user(user_id: str):
     :param user_id: E-Mail of the user
     :return: None or the user object
     """
-    sess = SessionLocal()
+    sess = get_session_maker()()
     user = sess.query(User).where(User.username == user_id).one()
 
     return user.__dict__ if user else None
