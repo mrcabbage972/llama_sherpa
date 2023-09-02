@@ -21,6 +21,8 @@
                 <td>{{ user.is_superuser }}</td>
                 <td>
                     <a href="/change_password/{{ user.username }}" class="btn btn-primary">Change Password</a>
+                    <a href="/delete_user/{{ user.username }}" class="btn btn-primary">Delete</a>
+                    <a href="/make_superuser/{{ user.username }}" class="btn btn-primary">Make Superuser</a>
                 </td>
                         </tr>
                 {% endfor %}

@@ -72,11 +72,30 @@ def signup(username: Annotated[str, Form()],
 def signup(request: Request, username: str):
     return templates.TemplateResponse("change_password.html", context={"request": request, "username": username})
 
+
 @router.post("/change_password/{username}")
 def signup(username: str,
            password: Annotated[str, Form()],
            db: Session = Depends(get_db)):
     user = db.query(User).where(User.username == username).one()
     user.password = hash_password(password)
+    db.commit()
+    return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
+
+
+@router.get('/delete_user/{username}')
+def delete_user(username: str,
+                db: Session = Depends(get_db)):
+    user = db.query(User).where(User.username == username).one()
+    db.delete(user)
+    db.commit()
+    return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
+
+
+@router.get('/make_superuser/{username}')
+def make_superuser(username: str,
+                   db: Session = Depends(get_db)):
+    user = db.query(User).where(User.username == username).one()
+    user.is_superuser = True
     db.commit()
     return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
