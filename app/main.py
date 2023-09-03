@@ -10,7 +10,7 @@ from app.data import TaskRegistry
 from app.db.db import get_session_maker
 from app.db.db import init_db_schema
 from app.db.db import User
-from app.routers import admin
+from app.routers import admin, metrics
 from app.routers import backend
 from app.routers import frontend
 from app.routers import users
@@ -53,6 +53,7 @@ app.include_router(frontend.router)
 app.include_router(users.router)
 app.include_router(backend.router)
 app.include_router(admin.router)
+app.include_router(metrics.router)
 
 
 @app.exception_handler(NotAuthenticatedException)
