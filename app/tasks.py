@@ -37,6 +37,7 @@ class DockerTask(celery.Task):
         self.container = None
         self.hi = False
 
+
 @app.task(bind=True, base=AbortableTask)
 def docker_task(self, image, command, gpus, dry_run, env):
     if not dry_run:
@@ -50,10 +51,10 @@ def docker_task(self, image, command, gpus, dry_run, env):
 
         try:
             self.container = client.containers.run(image,
-                                  command,
-                                    environment=env,
-                                  device_requests=device_requests,
-                                           detach=True)
+                                                   command,
+                                                   environment=env,
+                                                   device_requests=device_requests,
+                                                   detach=True)
 
             is_aborted = False
             while self.container.status != 'exited':
@@ -84,10 +85,11 @@ def docker_task(self, image, command, gpus, dry_run, env):
 
                 return_val = TaskResult(stdout=out.decode("utf-8"), success=True)
         except (ContainerError, ReadTimeout, APIError) as e:
-            return_val =  TaskResult(stdout=str(e), success=False)
+            return_val = TaskResult(stdout=str(e), success=False)
     else:
         return_val = TaskResult(stdout="", success=True)
     return return_val.model_dump()
+
 
 @app.task()
 def task_list_tasks():

@@ -55,7 +55,7 @@ def submit_job(request: Request, task_id: str = None,
 
 
 @router.post("/submit")
-def submit_job(
+def submit_job_post(
         request: Request, image: Annotated[str, Form()],
         command: Annotated[str, Form()],
         env: Optional[str] = Form(None),
@@ -73,8 +73,8 @@ def submit_job(
     else:
         username = user['username']
 
-    request.app.state.task_registry.add_task(task, TaskSubmission(image=image, user=username, command=command, dry_run=dry_run,
-                                                                  gpus=num_gpus, env=env))
+    submission = TaskSubmission(image=image, user=username, command=command, dry_run=dry_run, gpus=num_gpus, env=env)
+    request.app.state.task_registry.add_task(task, submission)
     return RedirectResponse(
         '/',
         status_code=status.HTTP_302_FOUND)

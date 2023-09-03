@@ -1,9 +1,8 @@
 from celery.result import AsyncResult
 from fastapi import Depends, APIRouter
 
-from app.auth import manager, NotAuthenticatedException
+from app.auth import manager
 from app.data import SubmitDockerJob
-from app.routers.frontend import templates
 from app.tasks import docker_task
 
 router = APIRouter()

@@ -20,11 +20,11 @@ def login(request: Request):
 
 
 @router.post('/login')
-def login(request: Request, data: OAuth2PasswordRequestForm = Depends()):
+def login_post(request: Request, data: OAuth2PasswordRequestForm = Depends()):
     username = data.username
     password = data.password
 
-    user = request.app.state.user_manager.authenticate(username, password)
+    request.app.state.user_manager.authenticate(username, password)
 
     access_token = manager.create_access_token(
         data={'sub': username}
@@ -47,23 +47,23 @@ def signup(request: Request):
 
 
 @router.post("/signup")
-def signup(request: Request,
-           username: Annotated[str, Form()],
-           email: Annotated[str, Form()],
-           password: Annotated[str, Form()]):
+def signup_post(request: Request,
+                username: Annotated[str, Form()],
+                email: Annotated[str, Form()],
+                password: Annotated[str, Form()]):
     request.app.state.user_manager.create_user(username, email, password)
     return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
 
 
 @router.get('/change_password/{username}')
-def signup(request: Request, username: str):
+def change_password(request: Request, username: str):
     return templates.TemplateResponse("change_password.html", context={"request": request, "username": username})
 
 
 @router.post("/change_password/{username}")
-def signup(request: Request,
-           username: str,
-           password: Annotated[str, Form()]):
+def change_password_post(request: Request,
+                    username: str,
+                    password: Annotated[str, Form()]):
     request.app.state.user_manager.change_password(username, password)
     return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
 

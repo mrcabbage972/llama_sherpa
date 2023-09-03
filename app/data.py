@@ -3,7 +3,8 @@ from typing import Union, Optional
 
 from celery.result import AsyncResult
 from pydantic import BaseModel, Field
-from app.db.db import TaskSubmission as TaskSubmissionDB, SessionLocal, get_session_maker
+
+from app.db.db import TaskSubmission as TaskSubmissionDB, get_session_maker
 
 
 class TaskSubmission(BaseModel):
@@ -40,9 +41,9 @@ class TaskRegistry:
             env = task_submission_db.env.split(';')
             task_submission = TaskSubmission(start_time=task_submission_db.start_time,
                                              user=task_submission_db.username,
-                                            image=task_submission_db.image, command=task_submission_db.command,
-                                            gpus=task_submission_db.gpus, dry_run=task_submission_db.dry_run,
-                                            env=env)
+                                             image=task_submission_db.image, command=task_submission_db.command,
+                                             gpus=task_submission_db.gpus, dry_run=task_submission_db.dry_run,
+                                             env=env)
             # TODO: currently not populating
             self.tasks[task_submission_db.id] = TaskData(status='UNKNOWN', task_submission=task_submission)
 
@@ -50,10 +51,10 @@ class TaskRegistry:
         self.tasks[celery_task.id] = TaskData(status=celery_task.status, task_submission=task_submission)
         self.session.add(TaskSubmissionDB(id=celery_task.id, username=task_submission.user,
                                           start_time=datetime.now(), image=task_submission.image,
-                            command=task_submission.command, gpus=task_submission.gpus, dry_run=task_submission.dry_run,
-                            env=';'.join(task_submission.env)))
+                                          command=task_submission.command, gpus=task_submission.gpus,
+                                          dry_run=task_submission.dry_run,
+                                          env=';'.join(task_submission.env)))
         self.session.commit()
-
 
     def get_tasks(self):
         return self.tasks
@@ -70,7 +71,7 @@ class TaskRegistry:
         self.tasks[task_id].status = task_result.status
         if task_result.result is not None:
             if 'is_aborted' in task_result.result and task_result.result['is_aborted']:
-                self.tasks[task_id].status = 'ABORTED' # TODO: create/reuse enum for states
+                self.tasks[task_id].status = 'ABORTED'  # TODO: create/reuse enum for states
             elif 'success' in task_result.result and not task_result.result['success']:
                 self.tasks[task_id].status = 'FAILURE'
 

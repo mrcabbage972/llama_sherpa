@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends
-from requests import Session
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 
-from app.db.db import User, get_db
 from app.dependencies import get_current_active_superuser
 
 router = APIRouter()

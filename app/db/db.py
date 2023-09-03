@@ -1,9 +1,11 @@
 import logging
+import typing as t
 from typing import Generator
 
-from sqlalchemy import create_engine, Boolean, MetaData
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
+from sqlalchemy import create_engine, Boolean
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy.orm import sessionmaker
 
 from app.settings import get_settings
 
@@ -39,10 +41,6 @@ def get_db() -> Generator:
     finally:
         db.close()
 
-
-import typing as t
-
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
 class_registry: t.Dict = {}
 
