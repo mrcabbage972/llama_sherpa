@@ -1,5 +1,10 @@
 # Llama Sherpa
+A simple scheduler of dockerized tasks, built with LLM use-cases in mind.
+
 WARNING: This project is still a work in progress and is not released.
+
+![Alt text](doc/home.png?raw=true "Screenshot")
+
 
 
 ## Motivation
