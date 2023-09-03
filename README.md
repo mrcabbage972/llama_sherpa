@@ -59,6 +59,7 @@ The web UI is available at http://localhost:8004. The following features are ava
 1. Add support for GPU utilization monitoring.
 2. Add support for requesting a number of GPU's.
 3. Add support for multiple worker machines.
+4. Pre-configure commonly used tasks.
 
 # Contributing
 Contributions are welcome. Please open an issue to discuss your ideas before submitting a PR.
