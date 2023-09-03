@@ -40,7 +40,7 @@ class DockerTask(celery.Task):
 
 
 @app.task(bind=True, base=AbortableTask)
-def docker_task(self, image, command, gpus, dry_run, env):
+def docker_task(self, image, command, gpus, dry_run, env, ports):
     if not dry_run:
         client = docker.from_env()
 
@@ -55,7 +55,8 @@ def docker_task(self, image, command, gpus, dry_run, env):
                                                    command,
                                                    environment=env,
                                                    device_requests=device_requests,
-                                                   detach=True)
+                                                   detach=True,
+                                                   ports=ports)
 
             is_aborted = False
             while self.container.status != 'exited':

@@ -1,10 +1,18 @@
 import pathlib
 from functools import lru_cache
+from typing import Optional, Dict
 
 from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
 
 REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
+
+
+class JobParameters(BaseSettings):
+    image: str
+    command: Optional[str]  = None
+    env: Optional[str] = None
+    ports: Optional[Dict[int, int]] = None
 
 
 class Settings(BaseSettings):
@@ -19,6 +27,11 @@ class Settings(BaseSettings):
     require_login_for_submit: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", extra='allow')
+
+    predefined_jobs: Dict[str, JobParameters] = {
+        'JupyterLab': JobParameters(image='jupyter/datascience-notebook:2023-08-19',
+                                    command='jupyter lab',
+                                    ports={8888: 8888})}
 
 
 @lru_cache()

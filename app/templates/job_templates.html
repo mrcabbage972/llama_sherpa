@@ -1,0 +1,23 @@
+
+{% extends "_base.html" %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Commonly Used Docker Tasks</h1>
+        <div class="row">
+            {% for key, value in job_templates.items() %}
+            <!-- Docker Task Card 1 -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{key}}</h5>
+                        <p class="card-text"></p>
+                        <a href="/submit?predefined_job={{key}}" class="btn btn-primary">Schedule</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+    </div>
+    </div>
+
+{% endblock %}
