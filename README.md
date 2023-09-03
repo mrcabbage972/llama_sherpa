@@ -20,8 +20,10 @@ This simple task scheduling system is designed to fill that gap. It provides the
 5. Each task can request a number of GPU's. It will be queued until the requested resources are available.
 6. Commonly used tasks can be pre-configured to be scheduled with one click.
 
-# Installation
-TBD
+# Quick Start
+To start the system, run the following command:
+``` docker compose up```.
+The web UI will be available at http://localhost:8004.
 
-# Usage
-TBD
+# Contributing
+Contributions are welcome. Please open an issue to discuss your ideas before submitting a PR.
