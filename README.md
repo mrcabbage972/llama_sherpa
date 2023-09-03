@@ -20,10 +20,45 @@ This simple task scheduling system is designed to fill that gap. It provides the
 5. Each task can request a number of GPU's. It will be queued until the requested resources are available.
 6. Commonly used tasks can be pre-configured to be scheduled with one click.
 
+# Setup
+##  Pre-requisites
+Docker and docker-compose are required.
+For GPU support, please install [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker).
+
 # Quick Start
-To start the system, run the following command:
+For a quick glance at how the system works, run the following command:
 ``` docker compose up```.
 The web UI will be available at http://localhost:8004.
+Please note that this is for demonstration only - the system is not secure without configuration.
+
+
+## Configuration
+Please create a `.env` file in the root directory of the project. The following variables are required:
+```
+SECRET_KEY
+FIRST_SUPERUSER_USERNAME # default: admin
+FIRST_SUPERUSER_PASSWORD
+FIRST_SUPERUSER_EMAIL
+```
+A secret key can be obtained with `openssl rand -hex 32`.
+
+Optional variables:
+```
+REQUIRE_LOGIN_FOR_SUBMIT # default: True
+```
+
+# Usage
+## Web UI
+The web UI is available at http://localhost:8004. The following features are available:
+1. Create a new task.
+2. View running, scheduled and completed tasks.
+3. View task details, including real-time logs.
+4. Manage users: create, change password, delete.
+
+# Roadmap
+1. Add support for GPU utilization monitoring.
+2. Add support for requesting a number of GPU's.
+3. Add support for multiple worker machines.
 
 # Contributing
 Contributions are welcome. Please open an issue to discuss your ideas before submitting a PR.

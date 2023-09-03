@@ -9,7 +9,7 @@ class NotAuthenticatedException(Exception):
     pass
 
 
-manager = LoginManager(get_settings().secret, '/login', use_cookie=True, custom_exception=NotAuthenticatedException)
+manager = LoginManager(get_settings().secret_key, '/login', use_cookie=True, custom_exception=NotAuthenticatedException)
 
 
 @manager.user_loader()
