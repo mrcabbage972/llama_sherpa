@@ -86,5 +86,3 @@ def abort(request: Request, task_id: str):
     return RedirectResponse(
         '/',
         status_code=status.HTTP_302_FOUND)
-
-

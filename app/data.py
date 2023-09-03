@@ -89,4 +89,3 @@ class SubmitDockerJob(BaseModel):
     command: str = 'echo "hello world"'
     gpus: int = 0
     dry_run: bool = False
-

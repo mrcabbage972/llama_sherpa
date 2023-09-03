@@ -22,5 +22,3 @@ def query_user(user_id: str):
     user = sess.query(User).where(User.username == user_id).one()
 
     return user.__dict__ if user else None
-
-

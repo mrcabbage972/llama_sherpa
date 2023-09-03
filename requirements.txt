@@ -12,3 +12,4 @@ passlib[bcrypt]
 fastapi-login
 sqlalchemy
 pydantic_settings~=2.0.3
+pre-commit~=3.4.0

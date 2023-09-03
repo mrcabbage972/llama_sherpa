@@ -9,7 +9,7 @@ You spent a lot of $$$ for a brand new 8xA100 machine so that your Machine Learn
 3. Getting an available GPU usually involves slacking the entire team and threatening them with a restaet.
 4. IT department is complaining that your GPU utilization is too low.
 
-Now you want to restore some semblance of order, which would involve fair and transparent allocation and good resource utilization. 
+Now you want to restore some semblance of order, which would involve fair and transparent allocation and good resource utilization.
 You begin to look into available tools and discover that they are either difficult to use, requires an entire team to maintain, or both.
 
 This simple task scheduling system is designed to fill that gap. It provides the following features:

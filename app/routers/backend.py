@@ -30,4 +30,3 @@ def get_status(task_id):
 @router.get('/protected')
 def protected_route(user=Depends(manager)):
     return {'user': user}
-
