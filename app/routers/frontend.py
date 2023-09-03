@@ -98,4 +98,5 @@ def abort(request: Request, task_id: str):
 
 @router.get("/job_templates")
 def job_templates(request: Request):
-    return templates.TemplateResponse("job_templates.html", context={"request": request})
+    return templates.TemplateResponse("job_templates.html", context={"request": request,
+                                                                     "job_templates": get_settings().predefined_jobs})
