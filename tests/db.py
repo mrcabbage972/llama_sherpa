@@ -1,4 +1,5 @@
-from app.db.db import User, SessionLocal
+from app.db.db import SessionLocal
+from app.db.db import User
 
 
 def test_user():

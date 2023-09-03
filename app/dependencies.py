@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends
+from fastapi import HTTPException
 
 from app.auth import manager
 

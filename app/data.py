@@ -1,10 +1,13 @@
 from datetime import datetime
-from typing import Union, Optional
+from typing import Optional
+from typing import Union
 
 from celery.result import AsyncResult
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
 
-from app.db.db import TaskSubmission as TaskSubmissionDB, get_session_maker
+from app.db.db import get_session_maker
+from app.db.db import TaskSubmission as TaskSubmissionDB
 
 
 class TaskSubmission(BaseModel):

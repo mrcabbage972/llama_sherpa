@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
+from fastapi import Depends
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 

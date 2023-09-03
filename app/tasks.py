@@ -7,7 +7,8 @@ import celery
 import docker
 from celery.app import Celery
 from celery.contrib.abortable import AbortableTask
-from docker.errors import ContainerError, APIError
+from docker.errors import APIError
+from docker.errors import ContainerError
 from requests import ReadTimeout
 
 from app.data import TaskResult

@@ -1,5 +1,6 @@
 from celery.result import AsyncResult
-from fastapi import Depends, APIRouter
+from fastapi import APIRouter
+from fastapi import Depends
 
 from app.auth import manager
 from app.data import SubmitDockerJob

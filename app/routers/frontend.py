@@ -1,9 +1,12 @@
 from collections import OrderedDict
-from typing import Annotated, Optional
+from typing import Annotated
+from typing import Optional
 
 from celery.contrib.abortable import AbortableAsyncResult
-from fastapi import APIRouter, Depends
-from fastapi import Request, Form
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import Form
+from fastapi import Request
 from starlette import status
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates

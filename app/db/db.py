@@ -2,9 +2,13 @@ import logging
 import typing as t
 from typing import Generator
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy import create_engine, Boolean
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.ext.declarative import as_declarative
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import sessionmaker
 
 from app.settings import get_settings

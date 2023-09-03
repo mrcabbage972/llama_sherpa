@@ -1,6 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import Form
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 from starlette.requests import Request

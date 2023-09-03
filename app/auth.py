@@ -1,6 +1,7 @@
 from fastapi_login import LoginManager
 
-from app.db.db import User, get_session_maker
+from app.db.db import get_session_maker
+from app.db.db import User
 from app.settings import get_settings
 
 
