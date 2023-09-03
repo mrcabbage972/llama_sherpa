@@ -14,10 +14,11 @@ class TaskSubmission(BaseModel):
     start_time: datetime = Field(default_factory=datetime.utcnow)
     user: str = 'unknown'
     image: str = 'python:3.11.2-slim-buster'
-    command: str = 'date'
+    command: Optional[str] = 'date'
     gpus: int = 0
     dry_run: bool = False
     env: Optional[list] = None
+    ports: Optional[str] = None
 
 
 class TaskResult(BaseModel):

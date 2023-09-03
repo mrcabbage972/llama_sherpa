@@ -25,8 +25,11 @@
 
        <label for="env">Environment Variables</label><br>
 <small id="envHelp" class="form-text text-muted">Enter semicolon-separated value pairs, e.g. ENV1=Val1;ENV2=Val2</small>
-
     <input type="text" id="env" class="form-control" name="env" value="{{ task['env'] }}">
+
+       <label for="ports">Port Mapping</label><br>
+<small id="portHelp" class="form-text text-muted">Enter semicolon-separated value pairs, e.g. 8000:8000;9000:9000</small>
+    <input type="text" id="ports" class="form-control" name="ports" value="{{ task['ports'] }}">
 
 
        <br>

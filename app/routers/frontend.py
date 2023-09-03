@@ -44,11 +44,14 @@ def task_info(request: Request, task_id: str):
 
 
 @router.get("/submit")
-def submit_job(request: Request, task_id: str = None,
+def submit_job(request: Request, task_id: str = None, predefined_job: str = None,
                user=Depends(manager) if get_settings().require_login_for_submit else None
                ):
-    # TODO: use depends for this
-    if task_id is None:
+    if predefined_job is not None:
+      job = get_settings().predefined_jobs[predefined_job]
+      ports = ';'.join([f'{k}:{v}' for k, v in job.ports.items()])
+      task = TaskSubmission(image=job.image, command=job.command, env=job.env, ports=ports).model_dump()
+    elif task_id is None:
         task = TaskSubmission().model_dump()
         task['env'] = ''
     else:
@@ -62,6 +65,7 @@ def submit_job_post(
         request: Request, image: Annotated[str, Form()],
         command: Annotated[str, Form()],
         env: Optional[str] = Form(None),
+        ports: Optional[str] = Form(None),
         dry_run: Annotated[bool, Form()] = False,
         user=Depends(manager) if get_settings().require_login_for_submit else Depends(manager.optional)):
     num_gpus = 0  # TODO: add to form
@@ -69,7 +73,9 @@ def submit_job_post(
         env = env.split(';')
     else:
         env = []
-    task = docker_task.delay(image, command, num_gpus, dry_run, env)
+
+    ports_dict = {(x.split(':')[0] + '/tcp'): x.split(':')[1] for x in ports.split(';') if x != ''}
+    task = docker_task.delay(image, command, num_gpus, dry_run, env, ports_dict)
 
     if user is None:
         username = 'unknown'
