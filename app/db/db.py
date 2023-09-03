@@ -9,8 +9,6 @@ from app.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
-logger.info(f"Using database file: {get_settings().db_file}")
-
 engine = None
 SessionLocal = None
 

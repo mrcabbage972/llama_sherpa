@@ -4,7 +4,8 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 
-from app.auth import manager, NotAuthenticatedException, hash_password
+from app.auth import manager, NotAuthenticatedException
+from app.security import hash_password
 from app.data import TaskRegistry
 from app.db.db import User, init_db_schema, get_session_maker
 from app.routers import frontend, backend, users, admin

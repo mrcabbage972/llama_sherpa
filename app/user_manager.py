@@ -1,6 +1,6 @@
 from fastapi_login.exceptions import InvalidCredentialsException
 
-from app.auth import hash_password, verify_password
+from app.security import verify_password, hash_password
 from app.db.db import User
 
 
