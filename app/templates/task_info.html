@@ -74,7 +74,15 @@
           <div class="container">
     <div class="alert alert-primary" role="alert">
         <!-- Your stdout text will go here -->
-                  {{ result['log'] }}
+                <!--  {{ result['log'] }} -->
+
+        {% set list1 = result['log'].split('\n') %}
+        {% for item in list1 %}
+        {{ item }}
+          {% if not loop.last %}
+          <br/>
+          {% endif %}
+        {% endfor %}
 
     </div>
 </div>
