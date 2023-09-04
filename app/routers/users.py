@@ -64,8 +64,8 @@ def change_password(request: Request, username: str):
 
 @router.post("/change_password/{username}")
 def change_password_post(request: Request,
-                    username: str,
-                    password: Annotated[str, Form()]):
+                         username: str,
+                         password: Annotated[str, Form()]):
     request.app.state.user_manager.change_password(username, password)
     return RedirectResponse('/list_users', status_code=status.HTTP_302_FOUND)
 
