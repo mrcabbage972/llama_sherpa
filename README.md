@@ -1,4 +1,6 @@
 # Llama Sherpa
+<a href="https://github.com/mrcabbage972/llama_sherpa/actions/workflows/pre-commit.yaml">![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mrcabbage972/llama_sherpa/pre-commit.yaml?label=pre-commit)</a>
+
 A simple scheduler of dockerized tasks, built with LLM use-cases in mind.
 
 WARNING: This project is still a work in progress and is not released.
