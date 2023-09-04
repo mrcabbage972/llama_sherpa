@@ -1,9 +1,10 @@
 <h1 align="center">
 <span>Llama Sherpa</span>
 </h1>
+
 <a href="https://github.com/mrcabbage972/llama_sherpa/actions/workflows/pre-commit.yml">![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mrcabbage972/llama_sherpa/pre-commit.yml?label=pre-commit)</a>
 
-<a href="https://github.com/mrcabbage972/llama_sherpa/actions/workflows/docker-image.yml">![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mrcabbage972/llama_sherpa/docker-image.yml?label=pre-commit)</a>
+<a href="https://github.com/mrcabbage972/llama_sherpa/actions/workflows/docker-image.yml">![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/mrcabbage972/llama_sherpa/docker-image.yml?label=build-docker)</a>
 
 
 A simple scheduler of dockerized tasks, built with LLM use-cases in mind.
