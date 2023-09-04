@@ -11,10 +11,10 @@ from starlette import status
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from app.auth import manager
 from app.data import TaskSubmission
 from app.db.db import SessionLocal
 from app.db.db import TaskSubmission as TaskSubmissionDB
+from app.dependencies import get_user_for_job_submit
 from app.settings import get_settings
 from app.tasks import docker_task
 
@@ -45,15 +45,16 @@ def task_info(request: Request, task_id: str):
 
 @router.get("/submit")
 def submit_job(request: Request, task_id: str = None, predefined_job: str = None,
-               user=Depends(manager) if get_settings().require_login_for_submit else None
+               user=Depends(get_user_for_job_submit)
                ):
     if predefined_job is not None:
-      job = get_settings().predefined_jobs[predefined_job]
-      ports = ';'.join([f'{k}:{v}' for k, v in job.ports.items()])
-      task = TaskSubmission(image=job.image, command=job.command, env=job.env, ports=ports).model_dump()
+        job = get_settings().predefined_jobs[predefined_job]
+        ports = ';'.join([f'{k}:{v}' for k, v in job.ports.items()])
+        task = TaskSubmission(image=job.image, command=job.command, env=job.env, ports=ports).model_dump()
     elif task_id is None:
         task = TaskSubmission().model_dump()
         task['env'] = ''
+        task['ports'] = ''
     else:
         session = SessionLocal()
         task = session.query(TaskSubmissionDB).filter(TaskSubmissionDB.id == task_id).one()
@@ -67,14 +68,17 @@ def submit_job_post(
         env: Optional[str] = Form(None),
         ports: Optional[str] = Form(None),
         dry_run: Annotated[bool, Form()] = False,
-        user=Depends(manager) if get_settings().require_login_for_submit else Depends(manager.optional)):
+        user=Depends(get_user_for_job_submit)):
     num_gpus = 0  # TODO: add to form
     if env is not None:
         env = env.split(';')
     else:
         env = []
 
-    ports_dict = {(x.split(':')[0] + '/tcp'): x.split(':')[1] for x in ports.split(';') if x != ''}
+    if ports is not None:
+        ports_dict = {(x.split(':')[0] + '/tcp'): x.split(':')[1] for x in ports.split(';') if x != ''}
+    else:
+        ports_dict = {}
     task = docker_task.delay(image, command, num_gpus, dry_run, env, ports_dict)
 
     if user is None:
@@ -95,6 +99,7 @@ def abort(request: Request, task_id: str):
     return RedirectResponse(
         '/',
         status_code=status.HTTP_302_FOUND)
+
 
 @router.get("/job_templates")
 def job_templates(request: Request):
