@@ -71,7 +71,6 @@ The web UI is available at http://localhost:8004. The following features are ava
 
 # Roadmap
 1. Add support for GPU utilization monitoring.
-2. Add support for requesting a number of GPU's.
 3. Add support for multiple worker machines.
 
 
