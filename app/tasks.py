@@ -45,7 +45,7 @@ def docker_task(self, image, command, gpus, dry_run, env, ports):
         client = docker.from_env()
 
         if gpus > 0:
-            gpu_device_request = docker.types.DeviceRequest(device_ids=["0,2"], capabilities=[['gpu']])
+            gpu_device_request = docker.types.DeviceRequest(count=gpus, capabilities=[['gpu']])
             device_requests = [gpu_device_request]
         else:
             device_requests = None

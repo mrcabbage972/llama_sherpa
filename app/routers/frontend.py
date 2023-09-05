@@ -67,9 +67,10 @@ def submit_job_post(
         command: Annotated[str, Form()],
         env: Optional[str] = Form(None),
         ports: Optional[str] = Form(None),
+        gpus: Optional[int] = Form(None),
         dry_run: Annotated[bool, Form()] = False,
         user=Depends(get_user_for_job_submit)):
-    num_gpus = 0  # TODO: add to form
+    num_gpus = 0 if gpus is None else gpus
     if env is not None:
         env = env.split(';')
     else:
